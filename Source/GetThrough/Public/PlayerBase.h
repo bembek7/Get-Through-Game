@@ -8,7 +8,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Components/SpotLightComponent.h"
 #include "Components/PointLightComponent.h"
-
+#include "Perception/AIPerceptionStimuliSourceComponent.h"
 
 #include "PlayerBase.generated.h"
 
@@ -19,7 +19,7 @@ class GETTHROUGH_API APlayerBase : public ACharacter
 
 public:
 	// Sets default values for this character's properties
-	APlayerBase();
+	APlayerBase() noexcept;
 
 protected:
 	// Called when the game starts or when spawned
@@ -37,6 +37,9 @@ protected:
 public:
 
 protected:
+	UPROPERTY(EditDefaultsOnly)
+	UAIPerceptionStimuliSourceComponent* AIPerceptionStimuliSource;
+
 	UPROPERTY(EditDefaultsOnly)
 	USpotLightComponent* Torch;
 

@@ -4,12 +4,15 @@
 #include "PlayerBase.h"
 #include "PlayerControllerBase.h"
 #include "Components/CapsuleComponent.h"
+#include "Perception/AISense_Sight.h"
 
 // Sets default values
-APlayerBase::APlayerBase()
+APlayerBase::APlayerBase() noexcept
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+
+	AIPerceptionStimuliSource = CreateDefaultSubobject<UAIPerceptionStimuliSourceComponent>(TEXT("AIPerceptionStimuliSource"));
 
 	Torch = CreateDefaultSubobject<USpotLightComponent>(TEXT("Torch"));
 	Torch->SetupAttachment(GetCapsuleComponent());

@@ -8,7 +8,6 @@
 #include "InputAction.h"
 
 
-
 #include "PlayerControllerBase.generated.h"
 
 /**
@@ -18,6 +17,8 @@ UCLASS()
 class GETTHROUGH_API APlayerControllerBase : public APlayerController
 {
 	GENERATED_BODY()
+
+public:
 
 protected:
 	// Called when the game starts or when spawned
@@ -40,8 +41,6 @@ private:
 public:
 
 protected:
-
-	// Enhaced input
 
 	UPROPERTY(EditDefaultsOnly, Category = "Enhanced Input")
 	TSoftObjectPtr<UInputMappingContext> InputMappingContext;
