@@ -27,29 +27,7 @@ void APlayerControllerBase::BeginPlay()
 
 void APlayerControllerBase::Tick(float DeltaTime)
 {
-    FVector MouseLocation;
-    FVector MouseDirection;
-    if (DeprojectMousePositionToWorld(MouseLocation, MouseDirection))
-    {
-        APawn* PlayerPawn = GetPawn();
-        FVector PlayerLocation = PlayerPawn->GetActorLocation();
-        FRotator PlayerToMouseRotation = PlayerPawn->GetActorRotation();
-        
-        // Find intersect point with plane originating on actor 
-        FVector ActorLocation = PlayerPawn->GetActorLocation();
-        FVector EndLocation = FMath::LinePlaneIntersection(
-            MouseLocation,
-            MouseLocation + (MouseDirection * 10000.f),
-            ActorLocation,
-            FVector{ 0.f, 0.f, 1.f }
-        );
-
-        // Change actor's yaw rotation
-        FRotator NewRotation = PlayerPawn->GetActorRotation();
-        NewRotation.Yaw = (EndLocation - ActorLocation).Rotation().Yaw;
-        float RotatingSpeed = 100.f;
-        Cast<ACharacter>(GetPawn())->FaceRotation(NewRotation);
-    }
+    RotatePlayerToFaceTheCursor(DeltaTime);
 }
 
 void APlayerControllerBase::SetupInput(UInputComponent* PlayerInputComponent) noexcept
@@ -72,4 +50,36 @@ void APlayerControllerBase::Walk(const FInputActionValue& IAValue) noexcept
     APawn* PlayerPawn = GetPawn();
     PlayerPawn->AddMovementInput(FVector(0, 1, 0), XAxis);
     PlayerPawn->AddMovementInput(FVector(1, 0, 0), YAxis);
+}
+
+void APlayerControllerBase::RotatePlayerToFaceTheCursor(float DeltaTime) noexcept
+{
+    FVector MouseLocation;
+    FVector MouseDirection;
+    APawn* PlayerPawn = GetPawn();
+
+    if (DeprojectMousePositionToWorld(MouseLocation, MouseDirection))
+    {
+        FVector PlayerLocation = PlayerPawn->GetActorLocation();
+
+        // Find intersect point with plane originating on actor 
+        FVector ActorLocation = PlayerPawn->GetActorLocation();
+        FVector EndLocation = FMath::LinePlaneIntersection(
+            MouseLocation,
+            MouseLocation + (MouseDirection * 10000.f),
+            ActorLocation,
+            FVector{ 0.f, 0.f, 1.f }
+        );
+
+        // Change actor's yaw rotation
+        FRotator NewRotation = PlayerPawn->GetActorRotation();
+        NewRotation.Yaw = (EndLocation - ActorLocation).Rotation().Yaw;
+        Cast<ACharacter>(PlayerPawn)->FaceRotation(NewRotation, DeltaTime);
+        
+        LastRecordedRotationWithMouseInViewport = NewRotation;
+    }
+    else
+    {
+        Cast<ACharacter>(PlayerPawn)->FaceRotation(LastRecordedRotationWithMouseInViewport, DeltaTime);
+    }
 }
