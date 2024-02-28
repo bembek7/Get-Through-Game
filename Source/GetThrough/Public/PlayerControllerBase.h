@@ -37,6 +37,9 @@ private:
 	UFUNCTION(Category = "Input Response")
 	void Walk(const FInputActionValue& IAValue) noexcept;
 
+	UFUNCTION(Category = "Input Response")
+	void Shoot() noexcept;
+
 	void RotatePlayerToFaceTheCursor(float DeltaTime) noexcept;
 public:
 
@@ -47,6 +50,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Enhanced Input")
 	UInputAction* IAWalk;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Enhanced Input")
+	UInputAction* IAShoot;
 
 private:
 	FRotator LastRecordedRotationWithMouseInViewport;

@@ -2,6 +2,7 @@
 
 
 #include "EnemyControllerBase.h"
+#include "BehaviorTree/BlackboardComponent.h"
 
 AEnemyControllerBase::AEnemyControllerBase() noexcept
 {
@@ -29,7 +30,10 @@ void AEnemyControllerBase::BeginPlay()
 	AIPerception->OnTargetPerceptionUpdated.AddUnique(TargetPereceptionUpdatedDelegate);
 }
 
-void AEnemyControllerBase::TargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus) const noexcept
+void AEnemyControllerBase::TargetPerceptionUpdated(AActor* Actor, const FAIStimulus& Stimulus) const noexcept
 {
-	UE_LOG(LogTemp, Warning, TEXT("%s"), *Actor->GetName());
+	if (Stimulus.WasSuccessfullySensed())
+	{
+		EnemyBlackboard->SetValueAsObject(FName("Player"), Actor);
+	}
 }

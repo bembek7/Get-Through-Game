@@ -25,7 +25,7 @@ protected:
 
 private:
 	UFUNCTION()
-	void TargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus) const noexcept;
+	void TargetPerceptionUpdated(AActor* Actor, const FAIStimulus& Stimulus) const noexcept;
 
 public:
 

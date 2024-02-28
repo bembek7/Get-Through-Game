@@ -39,6 +39,10 @@ void APlayerControllerBase::SetupInput(UInputComponent* PlayerInputComponent) no
         {
             PlayerEnhancedInputComponent->BindAction(IAWalk, ETriggerEvent::Triggered, this, &APlayerControllerBase::Walk);
         }
+        if (IAShoot)
+        {
+            PlayerEnhancedInputComponent->BindAction(IAShoot, ETriggerEvent::Started, this, &APlayerControllerBase::Shoot);
+        }
     }
 }
 
@@ -50,6 +54,11 @@ void APlayerControllerBase::Walk(const FInputActionValue& IAValue) noexcept
     APawn* PlayerPawn = GetPawn();
     PlayerPawn->AddMovementInput(FVector(0, 1, 0), XAxis);
     PlayerPawn->AddMovementInput(FVector(1, 0, 0), YAxis);
+}
+
+void APlayerControllerBase::Shoot() noexcept
+{
+    UE_LOG(LogTemp, Warning, TEXT("Shoot"));
 }
 
 void APlayerControllerBase::RotatePlayerToFaceTheCursor(float DeltaTime) noexcept
