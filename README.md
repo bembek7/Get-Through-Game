@@ -1,4 +1,4 @@
-# GetThrough
+# Get Through
 
 IN DEVELOPMENT
 
