@@ -19,19 +19,14 @@ class GETTHROUGH_API APlayerControllerBase : public APlayerController
 	GENERATED_BODY()
 
 public:
+	// Called every frame
+	virtual void Tick(float DeltaTime) override;
+
+	void SetupInput(class UInputComponent* PlayerInputComponent) noexcept;
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-
-public:
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
-
-public:
-	void SetupInput(class UInputComponent* PlayerInputComponent) noexcept;
-
-protected:
 
 private:
 	UFUNCTION(Category = "Input Response")
@@ -41,6 +36,8 @@ private:
 	void Shoot() noexcept;
 
 	void RotatePlayerToFaceTheCursor(float DeltaTime) noexcept;
+
+	void PlayGunshotSound(const FVector& GunLocation) const noexcept;
 public:
 
 protected:
@@ -54,6 +51,10 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Enhanced Input")
 	UInputAction* IAShoot;
 
+	UPROPERTY(EditDefaultsOnly)
+	USoundBase* GunshotSound;
+
 private:
+	FVector LastRecordedMouseLocation;
 	FRotator LastRecordedRotationWithMouseInViewport;
 };

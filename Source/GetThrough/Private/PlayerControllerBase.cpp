@@ -7,6 +7,8 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "GameFramework/Character.h"
 #include "Components/CapsuleComponent.h"
+#include "PlayerBase.h"
+#include "Kismet/GameplayStatics.h"
 
 void APlayerControllerBase::BeginPlay()
 {
@@ -58,7 +60,27 @@ void APlayerControllerBase::Walk(const FInputActionValue& IAValue) noexcept
 
 void APlayerControllerBase::Shoot() noexcept
 {
-    UE_LOG(LogTemp, Warning, TEXT("Shoot"));
+    APlayerBase* PlayerPawn = Cast<APlayerBase>(GetPawn());
+    FHitResult Hit;
+    FVector GunLocation = PlayerPawn->GetShootingStartLocation();
+    FVector MouseLocation = FVector(LastRecordedMouseLocation.X, LastRecordedMouseLocation.Y, GunLocation.Z);
+    FVector TraceDirection = (MouseLocation - GunLocation).GetSafeNormal(1.f);
+    FVector TraceEnd = GunLocation + TraceDirection * 2000.f;
+
+    FCollisionQueryParams QueryParams;
+    QueryParams.AddIgnoredActor(this);
+    GetWorld()->LineTraceSingleByChannel(Hit, GunLocation, TraceEnd, ECollisionChannel::ECC_Camera, QueryParams);
+
+    if (Hit.bBlockingHit)
+    {
+        DrawDebugLine(GetWorld(), GunLocation, Hit.ImpactPoint, FColor::Yellow, false, 0.2f, 0, 2.0f);
+    }
+    else
+    {
+        DrawDebugLine(GetWorld(), GunLocation, TraceEnd, FColor::Yellow, false, 0.2f, 0, 2.0f);
+    }
+
+    PlayGunshotSound(GunLocation);
 }
 
 void APlayerControllerBase::RotatePlayerToFaceTheCursor(float DeltaTime) noexcept
@@ -85,10 +107,16 @@ void APlayerControllerBase::RotatePlayerToFaceTheCursor(float DeltaTime) noexcep
         NewRotation.Yaw = (EndLocation - ActorLocation).Rotation().Yaw;
         Cast<ACharacter>(PlayerPawn)->FaceRotation(NewRotation, DeltaTime);
         
+        LastRecordedMouseLocation = EndLocation;
         LastRecordedRotationWithMouseInViewport = NewRotation;
     }
     else
     {
         Cast<ACharacter>(PlayerPawn)->FaceRotation(LastRecordedRotationWithMouseInViewport, DeltaTime);
     }
+}
+
+void APlayerControllerBase::PlayGunshotSound(const FVector& GunLocation) const noexcept
+{
+    UGameplayStatics::PlaySoundAtLocation(GetWorld(), GunshotSound, GunLocation);
 }

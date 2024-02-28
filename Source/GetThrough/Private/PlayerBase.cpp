@@ -5,6 +5,7 @@
 #include "PlayerControllerBase.h"
 #include "Components/CapsuleComponent.h"
 #include "Perception/AISense_Sight.h"
+#include "Components/SkeletalMeshComponent.h"
 
 // Sets default values
 APlayerBase::APlayerBase() noexcept
@@ -13,6 +14,9 @@ APlayerBase::APlayerBase() noexcept
 	PrimaryActorTick.bCanEverTick = true;
 
 	AIPerceptionStimuliSource = CreateDefaultSubobject<UAIPerceptionStimuliSourceComponent>(TEXT("AIPerceptionStimuliSource"));
+
+	Gun = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Gun"));
+	Gun->SetupAttachment(GetMesh(), FName("hand_r"));
 
 	Torch = CreateDefaultSubobject<USpotLightComponent>(TEXT("Torch"));
 	Torch->SetupAttachment(GetCapsuleComponent());
@@ -51,3 +55,7 @@ void APlayerBase::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	}
 }
 
+FVector APlayerBase::GetShootingStartLocation() const noexcept
+{
+	return Gun->GetSocketLocation(FName("Muzzle"));
+}
