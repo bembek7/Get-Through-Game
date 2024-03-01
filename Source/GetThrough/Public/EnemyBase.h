@@ -21,12 +21,16 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	void ApplyDamage(float Damage) noexcept;
+
+	UFUNCTION(BlueprintCallable)
+	bool IsDead() const noexcept;
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 private:	
-	
+	void Die() noexcept;
 
 public:
 
@@ -34,5 +38,6 @@ protected:
 	UPROPERTY(EditDefaultsOnly)
 	float Health = 100.f;
 private:
+	bool bIsDead = false;
 	
 };

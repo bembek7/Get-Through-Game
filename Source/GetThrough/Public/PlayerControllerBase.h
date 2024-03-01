@@ -68,6 +68,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<UUserWidget>MapWidgetClass;
 
+	UPROPERTY(EditDefaultsOnly)
+	float GunDamage = 35.f;
+
 private:
 	UUserWidget* MapWidget;
 	FVector LastRecordedMouseLocation;

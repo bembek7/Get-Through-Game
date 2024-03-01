@@ -10,6 +10,7 @@
 #include "PlayerBase.h"
 #include "Kismet/GameplayStatics.h"
 #include "Blueprint/UserWidget.h"
+#include "EnemyBase.h"
 
 void APlayerControllerBase::BeginPlay()
 {
@@ -88,6 +89,13 @@ void APlayerControllerBase::Shoot() noexcept
     {
         DrawDebugLine(GetWorld(), GunLocation, TraceEnd, FColor::Yellow, false, 0.2f, 0, 2.0f);
     }
+
+    AEnemyBase* EnemyHit = Cast<AEnemyBase>(Hit.GetActor());
+    if (EnemyHit)
+    {
+        EnemyHit->ApplyDamage(GunDamage);
+    }
+
     PlayGunshotSound(GunLocation);
 }
 

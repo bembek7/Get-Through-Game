@@ -19,7 +19,6 @@ class GETTHROUGH_API AEnemyControllerBase : public AAIController
 
 public:
 	AEnemyControllerBase() noexcept;
-
 protected:
 	virtual void BeginPlay() override;
 

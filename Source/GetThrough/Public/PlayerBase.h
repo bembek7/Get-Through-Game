@@ -54,9 +54,6 @@ protected:
 	UPROPERTY(EditDefaultsOnly)
 	USpringArmComponent* SpringArm;
 
-	UPROPERTY(EditDefaultsOnly)
-	float GunDamage = 35.f;
-
 private:
 
 };
