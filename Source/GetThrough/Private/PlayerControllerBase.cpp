@@ -9,10 +9,14 @@
 #include "Components/CapsuleComponent.h"
 #include "PlayerBase.h"
 #include "Kismet/GameplayStatics.h"
+#include "Blueprint/UserWidget.h"
 
 void APlayerControllerBase::BeginPlay()
 {
 	Super::BeginPlay();
+
+    MapWidget = CreateWidget<UUserWidget>(this, MapWidgetClass);
+
     if (ULocalPlayer* LocalPlayer = Cast<ULocalPlayer>(GetLocalPlayer()))
     {
         if (UEnhancedInputLocalPlayerSubsystem* InputSystem = LocalPlayer->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>())
@@ -29,6 +33,7 @@ void APlayerControllerBase::BeginPlay()
 
 void APlayerControllerBase::Tick(float DeltaTime)
 {
+    Super::Tick(DeltaTime);
     RotatePlayerToFaceTheCursor(DeltaTime);
 }
 
@@ -44,6 +49,10 @@ void APlayerControllerBase::SetupInput(UInputComponent* PlayerInputComponent) no
         if (IAShoot)
         {
             PlayerEnhancedInputComponent->BindAction(IAShoot, ETriggerEvent::Started, this, &APlayerControllerBase::Shoot);
+        }
+        if (IAMap)
+        {
+            PlayerEnhancedInputComponent->BindAction(IAMap, ETriggerEvent::Started, this, &APlayerControllerBase::ShowHideMap);
         }
     }
 }
@@ -79,8 +88,31 @@ void APlayerControllerBase::Shoot() noexcept
     {
         DrawDebugLine(GetWorld(), GunLocation, TraceEnd, FColor::Yellow, false, 0.2f, 0, 2.0f);
     }
-
     PlayGunshotSound(GunLocation);
+}
+
+void APlayerControllerBase::ShowHideMap() noexcept
+{
+    if (MapWidget->IsInViewport())
+    {
+        HideMap();
+    }
+    else
+    {
+        ShowMap();
+    }
+}
+
+void APlayerControllerBase::ShowMap() noexcept
+{
+    SetPause(true);
+    MapWidget->AddToPlayerScreen();
+}
+
+void APlayerControllerBase::HideMap() noexcept
+{
+    SetPause(false);
+    MapWidget->RemoveFromParent();
 }
 
 void APlayerControllerBase::RotatePlayerToFaceTheCursor(float DeltaTime) noexcept
@@ -89,22 +121,21 @@ void APlayerControllerBase::RotatePlayerToFaceTheCursor(float DeltaTime) noexcep
     FVector MouseDirection;
     APawn* PlayerPawn = GetPawn();
 
-    if (DeprojectMousePositionToWorld(MouseLocation, MouseDirection))
+    if (DeprojectMousePositionToWorld(MouseLocation, MouseDirection) && !IsPaused())
     {
         FVector PlayerLocation = PlayerPawn->GetActorLocation();
 
-        // Find intersect point with plane originating on actor 
-        FVector ActorLocation = PlayerPawn->GetActorLocation();
         FVector EndLocation = FMath::LinePlaneIntersection(
             MouseLocation,
             MouseLocation + (MouseDirection * 10000.f),
-            ActorLocation,
+            PlayerLocation,
             FVector{ 0.f, 0.f, 1.f }
         );
 
         // Change actor's yaw rotation
         FRotator NewRotation = PlayerPawn->GetActorRotation();
-        NewRotation.Yaw = (EndLocation - ActorLocation).Rotation().Yaw;
+        NewRotation.Yaw = (EndLocation - PlayerLocation).Rotation().Yaw;
+
         Cast<ACharacter>(PlayerPawn)->FaceRotation(NewRotation, DeltaTime);
         
         LastRecordedMouseLocation = EndLocation;

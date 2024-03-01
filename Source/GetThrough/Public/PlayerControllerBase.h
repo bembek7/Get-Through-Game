@@ -35,9 +35,17 @@ private:
 	UFUNCTION(Category = "Input Response")
 	void Shoot() noexcept;
 
+	UFUNCTION(Category = "Input Response")
+	void ShowHideMap() noexcept;
+
+	void ShowMap() noexcept;
+
+	void HideMap() noexcept;
+
 	void RotatePlayerToFaceTheCursor(float DeltaTime) noexcept;
 
 	void PlayGunshotSound(const FVector& GunLocation) const noexcept;
+
 public:
 
 protected:
@@ -51,10 +59,17 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Enhanced Input")
 	UInputAction* IAShoot;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Enhanced Input")
+	UInputAction* IAMap;
+
 	UPROPERTY(EditDefaultsOnly)
 	USoundBase* GunshotSound;
 
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<UUserWidget>MapWidgetClass;
+
 private:
+	UUserWidget* MapWidget;
 	FVector LastRecordedMouseLocation;
 	FRotator LastRecordedRotationWithMouseInViewport;
 };
