@@ -4,7 +4,6 @@
 #include "PlayerBase.h"
 #include "PlayerControllerBase.h"
 #include "Components/CapsuleComponent.h"
-#include "Perception/AISense_Sight.h"
 #include "Components/SkeletalMeshComponent.h"
 
 // Sets default values

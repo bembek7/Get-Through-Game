@@ -71,6 +71,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly)
 	float GunDamage = 35.f;
 
+	UPROPERTY(EditDefaultsOnly)
+	float GunshotSoundRange = 2000.f;
+
 private:
 	UUserWidget* MapWidget;
 	FVector LastRecordedMouseLocation;

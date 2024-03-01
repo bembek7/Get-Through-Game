@@ -11,6 +11,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Blueprint/UserWidget.h"
 #include "EnemyBase.h"
+#include "Perception/AISense_Hearing.h"
 
 void APlayerControllerBase::BeginPlay()
 {
@@ -158,4 +159,6 @@ void APlayerControllerBase::RotatePlayerToFaceTheCursor(float DeltaTime) noexcep
 void APlayerControllerBase::PlayGunshotSound(const FVector& GunLocation) const noexcept
 {
     UGameplayStatics::PlaySoundAtLocation(GetWorld(), GunshotSound, GunLocation);
+    APawn* PlayerPawn = GetPawn();
+    UAISense_Hearing::ReportNoiseEvent(GetWorld(), PlayerPawn->GetActorLocation(), 1.f, PlayerPawn, GunshotSoundRange, FName("Gunshot"));
 }
