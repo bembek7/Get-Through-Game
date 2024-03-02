@@ -6,7 +6,6 @@
 #include "AIController.h"
 #include "Perception/AIPerceptionComponent.h"
 
-
 #include "EnemyControllerBase.generated.h"
 
 /**
@@ -19,6 +18,10 @@ class GETTHROUGH_API AEnemyControllerBase : public AAIController
 
 public:
 	AEnemyControllerBase() noexcept;
+
+	virtual ETeamAttitude::Type GetTeamAttitudeTowards(const AActor& Other) const override;
+	virtual FGenericTeamId GetGenericTeamId() const override;
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -40,6 +43,6 @@ protected:
 	UBehaviorTree* DefaultBehaviorTree;
 
 private:
-
+	FGenericTeamId TeamId = FGenericTeamId(1);
 	UBlackboardComponent* EnemyBlackboard;
 };

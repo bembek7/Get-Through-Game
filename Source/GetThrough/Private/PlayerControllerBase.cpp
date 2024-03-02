@@ -59,11 +59,16 @@ void APlayerControllerBase::SetupInput(UInputComponent* PlayerInputComponent) no
     }
 }
 
+FGenericTeamId APlayerControllerBase::GetGenericTeamId() const
+{
+    return TeamId;
+}
+
 void APlayerControllerBase::Walk(const FInputActionValue& IAValue) noexcept
 {
     const FVector2D MoveVector = IAValue.Get<FVector2D>();
-    float XAxis = MoveVector.X;
-    float YAxis = MoveVector.Y;
+    const float XAxis = MoveVector.X;
+    const float YAxis = MoveVector.Y;
     APawn* PlayerPawn = GetPawn();
     PlayerPawn->AddMovementInput(FVector(0, 1, 0), XAxis);
     PlayerPawn->AddMovementInput(FVector(1, 0, 0), YAxis);

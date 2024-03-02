@@ -11,6 +11,30 @@ AEnemyControllerBase::AEnemyControllerBase() noexcept
 	
 }
 
+ETeamAttitude::Type AEnemyControllerBase::GetTeamAttitudeTowards(const AActor& Other) const
+{
+	if (APawn const* OtherPawn = Cast<APawn>(&Other))
+	{
+		if (auto const TeamAgent = Cast<IGenericTeamAgentInterface>(OtherPawn->GetController()))
+		{
+			if (TeamAgent->GetGenericTeamId() == FGenericTeamId(1))
+			{
+				return ETeamAttitude::Friendly;
+			}
+			else
+			{
+				return ETeamAttitude::Hostile;
+			}
+		}
+	}
+	return ETeamAttitude::Neutral;
+}
+
+FGenericTeamId AEnemyControllerBase::GetGenericTeamId() const
+{
+	return TeamId;
+}
+
 void AEnemyControllerBase::BeginPlay()
 {
 	Super::BeginPlay();

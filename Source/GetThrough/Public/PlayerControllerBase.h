@@ -6,7 +6,7 @@
 #include "GameFramework/PlayerController.h"
 #include "InputMappingContext.h"
 #include "InputAction.h"
-
+#include "GenericTeamAgentInterface.h"
 
 #include "PlayerControllerBase.generated.h"
 
@@ -14,7 +14,7 @@
  * 
  */
 UCLASS()
-class GETTHROUGH_API APlayerControllerBase : public APlayerController
+class GETTHROUGH_API APlayerControllerBase : public APlayerController, public IGenericTeamAgentInterface
 {
 	GENERATED_BODY()
 
@@ -23,6 +23,8 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	void SetupInput(class UInputComponent* PlayerInputComponent) noexcept;
+
+	virtual FGenericTeamId GetGenericTeamId() const override;
 
 protected:
 	// Called when the game starts or when spawned
@@ -75,6 +77,7 @@ protected:
 	float GunshotSoundRange = 2000.f;
 
 private:
+	FGenericTeamId TeamId = FGenericTeamId(0);
 	UUserWidget* MapWidget;
 	FVector LastRecordedMouseLocation;
 	FRotator LastRecordedRotationWithMouseInViewport;

@@ -25,6 +25,9 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	bool IsDead() const noexcept;
+
+	UFUNCTION(BlueprintCallable)
+	void SetHealth(float NewHealth) noexcept;
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
