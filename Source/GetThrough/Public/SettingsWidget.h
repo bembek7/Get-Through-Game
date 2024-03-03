@@ -6,6 +6,7 @@
 #include "Blueprint/UserWidget.h"
 #include "SettingsWidget.generated.h"
 
+
 /**
  * 
  */
@@ -14,4 +15,6 @@ class GETTHROUGH_API USettingsWidget : public UUserWidget
 {
 	GENERATED_BODY()
 	
+public:
+	virtual void NativeConstruct() override;
 };

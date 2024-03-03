@@ -28,9 +28,13 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void SetHealth(float NewHealth) noexcept;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+	UFUNCTION()
+	void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpuls, const FHitResult& Hit);
 
 private:	
 	void Die() noexcept;

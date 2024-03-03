@@ -5,6 +5,7 @@
 #include "PlayerControllerBase.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 // Sets default values
 APlayerBase::APlayerBase() noexcept
@@ -57,4 +58,26 @@ void APlayerBase::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 FVector APlayerBase::GetShootingStartLocation() const noexcept
 {
 	return Gun->GetSocketLocation(FName("Muzzle"));
+}
+
+void APlayerBase::Die() noexcept
+{
+	bIsDead = true;
+	APlayerControllerBase* PlayerController = Cast<APlayerControllerBase>(GetController());
+	if (PlayerController)
+	{
+		PlayerController->PlayerDied();
+	}
+	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
+	bUseControllerRotationYaw = false;
+}
+
+void APlayerBase::TurnTorchOff() noexcept
+{
+	Torch->SetVisibility(false);
+}
+
+bool APlayerBase::IsDead() const noexcept
+{
+	return bIsDead;
 }

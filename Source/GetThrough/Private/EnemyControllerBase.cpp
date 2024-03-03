@@ -7,8 +7,6 @@
 AEnemyControllerBase::AEnemyControllerBase() noexcept
 {
 	AIPerception = CreateDefaultSubobject<UAIPerceptionComponent>(TEXT("AIPerception"));
-	
-	
 }
 
 ETeamAttitude::Type AEnemyControllerBase::GetTeamAttitudeTowards(const AActor& Other) const

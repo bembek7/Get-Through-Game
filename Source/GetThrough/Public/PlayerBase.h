@@ -29,6 +29,12 @@ public:
 
 	FVector GetShootingStartLocation() const noexcept;
 
+	void Die() noexcept;
+
+	void TurnTorchOff() noexcept;
+
+	bool IsDead() const noexcept;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -55,5 +61,5 @@ protected:
 	USpringArmComponent* SpringArm;
 
 private:
-
+	bool bIsDead = false;
 };

@@ -26,6 +26,7 @@ public:
 
 	virtual FGenericTeamId GetGenericTeamId() const override;
 
+	void PlayerDied() noexcept;
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -71,6 +72,9 @@ protected:
 	TSubclassOf<UUserWidget>MapWidgetClass;
 
 	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<UUserWidget>DeathWidgetClass;
+
+	UPROPERTY(EditDefaultsOnly)
 	float GunDamage = 35.f;
 
 	UPROPERTY(EditDefaultsOnly)
@@ -79,6 +83,7 @@ protected:
 private:
 	FGenericTeamId TeamId = FGenericTeamId(0);
 	UUserWidget* MapWidget;
+	UUserWidget* DeathWidget;
 	FVector LastRecordedMouseLocation;
 	FRotator LastRecordedRotationWithMouseInViewport;
 };

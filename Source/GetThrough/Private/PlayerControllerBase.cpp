@@ -10,6 +10,7 @@
 #include "PlayerBase.h"
 #include "Kismet/GameplayStatics.h"
 #include "Blueprint/UserWidget.h"
+#include "DeathWidget.h"
 #include "EnemyBase.h"
 #include "Perception/AISense_Hearing.h"
 
@@ -18,6 +19,8 @@ void APlayerControllerBase::BeginPlay()
 	Super::BeginPlay();
 
     MapWidget = CreateWidget<UUserWidget>(this, MapWidgetClass);
+
+    DeathWidget = CreateWidget<UDeathWidget>(this, DeathWidgetClass);
 
     if (ULocalPlayer* LocalPlayer = Cast<ULocalPlayer>(GetLocalPlayer()))
     {
@@ -62,6 +65,14 @@ void APlayerControllerBase::SetupInput(UInputComponent* PlayerInputComponent) no
 FGenericTeamId APlayerControllerBase::GetGenericTeamId() const
 {
     return TeamId;
+}
+
+void APlayerControllerBase::PlayerDied() noexcept
+{
+    UE_LOG(LogTemp, Warning, TEXT("Player Died"));
+    DeathWidget->AddToPlayerScreen();
+    SetInputMode(FInputModeUIOnly());
+    Cast<APlayerBase>(GetPawn())->TurnTorchOff();
 }
 
 void APlayerControllerBase::Walk(const FInputActionValue& IAValue) noexcept
