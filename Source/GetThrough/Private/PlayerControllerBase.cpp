@@ -70,7 +70,7 @@ FGenericTeamId APlayerControllerBase::GetGenericTeamId() const
 void APlayerControllerBase::PlayerDied() noexcept
 {
     UE_LOG(LogTemp, Warning, TEXT("Player Died"));
-    DeathWidget->AddToPlayerScreen();
+    DeathWidget->AddToViewport();
     SetInputMode(FInputModeUIOnly());
     Cast<APlayerBase>(GetPawn())->TurnTorchOff();
 }
