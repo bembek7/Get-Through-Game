@@ -4,6 +4,7 @@
 #include "DeathWidget.h"
 #include "Components/Button.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "Kismet/GameplayStatics.h"
 
 void UDeathWidget::NativeConstruct()
 {
@@ -25,5 +26,5 @@ void UDeathWidget::QuitGame() const noexcept
 
 void UDeathWidget::PlayAgain() const noexcept
 {
-	UE_LOG(LogTemp, Warning, TEXT("Play again clicked"));
+	UGameplayStatics::OpenLevel(GetWorld(), FName("Main"), false);
 }

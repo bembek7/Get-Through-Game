@@ -10,7 +10,6 @@
 #include "PlayerBase.h"
 #include "Kismet/GameplayStatics.h"
 #include "Blueprint/UserWidget.h"
-#include "DeathWidget.h"
 #include "EnemyBase.h"
 #include "Perception/AISense_Hearing.h"
 
@@ -19,8 +18,12 @@ void APlayerControllerBase::BeginPlay()
 	Super::BeginPlay();
 
     MapWidget = CreateWidget<UUserWidget>(this, MapWidgetClass);
+    MapWidget->AddToPlayerScreen();
+    MapWidget->SetVisibility(ESlateVisibility::Collapsed);
 
-    DeathWidget = CreateWidget<UDeathWidget>(this, DeathWidgetClass);
+    DeathWidget = CreateWidget<UUserWidget>(this, DeathWidgetClass);
+    DeathWidget->AddToPlayerScreen();
+    DeathWidget->SetVisibility(ESlateVisibility::Collapsed);
 
     if (ULocalPlayer* LocalPlayer = Cast<ULocalPlayer>(GetLocalPlayer()))
     {
@@ -32,8 +35,11 @@ void APlayerControllerBase::BeginPlay()
             }
         }
     }
-
     bShowMouseCursor = true;
+    CurrentMouseCursor = EMouseCursor::Crosshairs;
+    auto InputMode = FInputModeGameAndUI();
+    InputMode.SetHideCursorDuringCapture(false);
+    SetInputMode(InputMode);
 }
 
 void APlayerControllerBase::Tick(float DeltaTime)
@@ -69,10 +75,12 @@ FGenericTeamId APlayerControllerBase::GetGenericTeamId() const
 
 void APlayerControllerBase::PlayerDied() noexcept
 {
-    UE_LOG(LogTemp, Warning, TEXT("Player Died"));
-    DeathWidget->AddToViewport();
     SetInputMode(FInputModeUIOnly());
     Cast<APlayerBase>(GetPawn())->TurnTorchOff();
+    if (DeathWidget)
+    {
+        DeathWidget->SetVisibility(ESlateVisibility::Visible);
+    }
 }
 
 void APlayerControllerBase::Walk(const FInputActionValue& IAValue) noexcept
@@ -118,12 +126,12 @@ void APlayerControllerBase::Shoot() noexcept
 
 void APlayerControllerBase::ShowHideMap() noexcept
 {
-    if (MapWidget->IsInViewport())
+    if (MapWidget->IsVisible())
     {
         HideMap();
     }
     else
-    {
+    {   
         ShowMap();
     }
 }
@@ -131,13 +139,13 @@ void APlayerControllerBase::ShowHideMap() noexcept
 void APlayerControllerBase::ShowMap() noexcept
 {
     SetPause(true);
-    MapWidget->AddToPlayerScreen();
+    MapWidget->SetVisibility(ESlateVisibility::Visible);
 }
 
 void APlayerControllerBase::HideMap() noexcept
 {
     SetPause(false);
-    MapWidget->RemoveFromParent();
+    MapWidget->SetVisibility(ESlateVisibility::Collapsed);
 }
 
 void APlayerControllerBase::RotatePlayerToFaceTheCursor(float DeltaTime) noexcept
