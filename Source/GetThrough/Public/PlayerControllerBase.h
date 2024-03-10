@@ -39,11 +39,7 @@ private:
 	void Shoot() noexcept;
 
 	UFUNCTION(Category = "Input Response")
-	void ShowHideMap() noexcept;
-
-	void ShowMap() noexcept;
-
-	void HideMap() noexcept;
+	void ToggleCCTVView() noexcept;
 
 	void RotatePlayerToFaceTheCursor(float DeltaTime) noexcept;
 
@@ -63,16 +59,16 @@ protected:
 	UInputAction* IAShoot;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Enhanced Input")
-	UInputAction* IAMap;
+	UInputAction* IACCTV;
 
 	UPROPERTY(EditDefaultsOnly)
 	USoundBase* GunshotSound;
 
 	UPROPERTY(EditDefaultsOnly)
-	TSubclassOf<UUserWidget>MapWidgetClass;
+	TSubclassOf<UUserWidget>DeathWidgetClass;
 
 	UPROPERTY(EditDefaultsOnly)
-	TSubclassOf<UUserWidget>DeathWidgetClass;
+	TSubclassOf<AActor>CCTVClass;
 
 	UPROPERTY(EditDefaultsOnly)
 	float GunDamage = 35.f;
@@ -81,6 +77,7 @@ protected:
 	float GunshotSoundRange = 2000.f;
 
 private:
+	AActor* CCTV;
 	FGenericTeamId TeamId = FGenericTeamId(0);
 	UUserWidget* MapWidget;
 	UUserWidget* DeathWidget;

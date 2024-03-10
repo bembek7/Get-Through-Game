@@ -17,10 +17,6 @@ void APlayerControllerBase::BeginPlay()
 {
 	Super::BeginPlay();
 
-    MapWidget = CreateWidget<UUserWidget>(this, MapWidgetClass);
-    MapWidget->AddToPlayerScreen();
-    MapWidget->SetVisibility(ESlateVisibility::Collapsed);
-
     DeathWidget = CreateWidget<UUserWidget>(this, DeathWidgetClass);
     DeathWidget->AddToPlayerScreen();
     DeathWidget->SetVisibility(ESlateVisibility::Collapsed);
@@ -61,9 +57,9 @@ void APlayerControllerBase::SetupInput(UInputComponent* PlayerInputComponent) no
         {
             PlayerEnhancedInputComponent->BindAction(IAShoot, ETriggerEvent::Started, this, &APlayerControllerBase::Shoot);
         }
-        if (IAMap)
+        if (IACCTV)
         {
-            PlayerEnhancedInputComponent->BindAction(IAMap, ETriggerEvent::Started, this, &APlayerControllerBase::ShowHideMap);
+            PlayerEnhancedInputComponent->BindAction(IACCTV, ETriggerEvent::Started, this, &APlayerControllerBase::ToggleCCTVView);
         }
     }
 }
@@ -124,28 +120,24 @@ void APlayerControllerBase::Shoot() noexcept
     PlayGunshotSound(GunLocation);
 }
 
-void APlayerControllerBase::ShowHideMap() noexcept
+void APlayerControllerBase::ToggleCCTVView() noexcept
 {
-    if (MapWidget->IsVisible())
+    if (GetViewTarget() != CCTV)
     {
-        HideMap();
+        if (!CCTV)
+        {
+            CCTV = UGameplayStatics::GetActorOfClass(GetWorld(), CCTVClass);
+        }
+        SetViewTargetWithBlend(CCTV);
+        IgnoreMoveInput = true;
+        IgnoreLookInput = true;
     }
     else
-    {   
-        ShowMap();
+    {
+        IgnoreMoveInput = false;
+        IgnoreLookInput = false;
+        SetViewTargetWithBlend(GetPawn());
     }
-}
-
-void APlayerControllerBase::ShowMap() noexcept
-{
-    SetPause(true);
-    MapWidget->SetVisibility(ESlateVisibility::Visible);
-}
-
-void APlayerControllerBase::HideMap() noexcept
-{
-    SetPause(false);
-    MapWidget->SetVisibility(ESlateVisibility::Collapsed);
 }
 
 void APlayerControllerBase::RotatePlayerToFaceTheCursor(float DeltaTime) noexcept
