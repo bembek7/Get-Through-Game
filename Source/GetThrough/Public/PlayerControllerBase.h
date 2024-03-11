@@ -36,6 +36,9 @@ private:
 	void Walk(const FInputActionValue& IAValue) noexcept;
 
 	UFUNCTION(Category = "Input Response")
+	void Look(const FInputActionValue& IAValue) noexcept;
+
+	UFUNCTION(Category = "Input Response")
 	void Shoot() noexcept;
 
 	UFUNCTION(Category = "Input Response")
@@ -56,6 +59,9 @@ protected:
 	UInputAction* IAWalk;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Enhanced Input")
+	UInputAction* IALook;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Enhanced Input")
 	UInputAction* IAShoot;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Enhanced Input")
@@ -68,6 +74,9 @@ protected:
 	TSubclassOf<UUserWidget>DeathWidgetClass;
 
 	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<UUserWidget>HUDWidgetClass;
+
+	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<AActor>CCTVClass;
 
 	UPROPERTY(EditDefaultsOnly)
@@ -76,11 +85,17 @@ protected:
 	UPROPERTY(EditDefaultsOnly)
 	float GunshotSoundRange = 2000.f;
 
+	UPROPERTY(EditDefaultsOnly)
+	float MouseXSensitivity = 1.f;
+
+	UPROPERTY(EditDefaultsOnly)
+	float MouseYSensitivity = 1.f;
+
 private:
 	AActor* CCTV;
 	FGenericTeamId TeamId = FGenericTeamId(0);
-	UUserWidget* MapWidget;
 	UUserWidget* DeathWidget;
+	UUserWidget* HUDWidget;
 	FVector LastRecordedMouseLocation;
 	FRotator LastRecordedRotationWithMouseInViewport;
 };

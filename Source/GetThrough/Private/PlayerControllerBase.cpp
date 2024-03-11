@@ -21,6 +21,9 @@ void APlayerControllerBase::BeginPlay()
     DeathWidget->AddToPlayerScreen();
     DeathWidget->SetVisibility(ESlateVisibility::Collapsed);
 
+    HUDWidget = CreateWidget<UUserWidget>(this, HUDWidgetClass);
+    HUDWidget->AddToPlayerScreen();
+
     if (ULocalPlayer* LocalPlayer = Cast<ULocalPlayer>(GetLocalPlayer()))
     {
         if (UEnhancedInputLocalPlayerSubsystem* InputSystem = LocalPlayer->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>())
@@ -31,17 +34,17 @@ void APlayerControllerBase::BeginPlay()
             }
         }
     }
-    bShowMouseCursor = true;
-    CurrentMouseCursor = EMouseCursor::Crosshairs;
-    auto InputMode = FInputModeGameAndUI();
-    InputMode.SetHideCursorDuringCapture(false);
-    SetInputMode(InputMode);
+    //bShowMouseCursor = true;
+    //CurrentMouseCursor = EMouseCursor::Crosshairs;
+    //auto InputMode = FInputModeGameAndUI();
+    //InputMode.SetHideCursorDuringCapture(false);
+    SetInputMode(FInputModeGameOnly());
 }
 
 void APlayerControllerBase::Tick(float DeltaTime)
 {
     Super::Tick(DeltaTime);
-    RotatePlayerToFaceTheCursor(DeltaTime);
+    // RotatePlayerToFaceTheCursor(DeltaTime);
 }
 
 void APlayerControllerBase::SetupInput(UInputComponent* PlayerInputComponent) noexcept
@@ -52,6 +55,10 @@ void APlayerControllerBase::SetupInput(UInputComponent* PlayerInputComponent) no
         if (IAWalk)
         {
             PlayerEnhancedInputComponent->BindAction(IAWalk, ETriggerEvent::Triggered, this, &APlayerControllerBase::Walk);
+        }
+        if (IALook)
+        {
+            PlayerEnhancedInputComponent->BindAction(IALook, ETriggerEvent::Triggered, this, &APlayerControllerBase::Look);
         }
         if (IAShoot)
         {
@@ -85,8 +92,15 @@ void APlayerControllerBase::Walk(const FInputActionValue& IAValue) noexcept
     const float XAxis = MoveVector.X;
     const float YAxis = MoveVector.Y;
     APawn* PlayerPawn = GetPawn();
-    PlayerPawn->AddMovementInput(FVector(0, 1, 0), XAxis);
-    PlayerPawn->AddMovementInput(FVector(1, 0, 0), YAxis);
+    PlayerPawn->AddMovementInput(PlayerPawn->GetActorRightVector(), XAxis);
+    PlayerPawn->AddMovementInput(PlayerPawn->GetActorForwardVector(), YAxis);
+}
+
+void APlayerControllerBase::Look(const FInputActionValue& IAValue) noexcept
+{
+    const FVector2D LookVector = IAValue.Get<FVector2D>();
+    GetPawn()->AddControllerYawInput(LookVector.X * MouseXSensitivity);
+    GetPawn()->AddControllerPitchInput(LookVector.Y * MouseYSensitivity * -1);
 }
 
 void APlayerControllerBase::Shoot() noexcept

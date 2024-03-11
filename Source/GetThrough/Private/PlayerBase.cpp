@@ -18,11 +18,11 @@ APlayerBase::APlayerBase() noexcept
 	Gun = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Gun"));
 	Gun->SetupAttachment(GetMesh(), FName("hand_r"));
 
-	Torch = CreateDefaultSubobject<USpotLightComponent>(TEXT("Torch"));
-	Torch->SetupAttachment(GetCapsuleComponent());
-
 	SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("Spring Arm"));
 	SpringArm->SetupAttachment(GetCapsuleComponent());
+
+	Torch = CreateDefaultSubobject<USpotLightComponent>(TEXT("Torch"));
+	Torch->SetupAttachment(SpringArm);
 
 	SpringArm->bDoCollisionTest = false;
 
