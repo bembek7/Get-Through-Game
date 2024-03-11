@@ -12,6 +12,7 @@
 #include "Blueprint/UserWidget.h"
 #include "EnemyBase.h"
 #include "Perception/AISense_Hearing.h"
+#include "Camera/CameraComponent.h"
 
 void APlayerControllerBase::BeginPlay()
 {
@@ -108,13 +109,15 @@ void APlayerControllerBase::Shoot() noexcept
     APlayerBase* PlayerPawn = Cast<APlayerBase>(GetPawn());
     FHitResult Hit;
     FVector GunLocation = PlayerPawn->GetShootingStartLocation();
-    FVector MouseLocation = FVector(LastRecordedMouseLocation.X, LastRecordedMouseLocation.Y, GunLocation.Z);
-    FVector TraceDirection = (MouseLocation - GunLocation).GetSafeNormal(1.f);
-    FVector TraceEnd = GunLocation + TraceDirection * 2000.f;
+    USceneComponent* PlayerCamera = Cast<USceneComponent>(PlayerPawn->GetComponentByClass(UCameraComponent::StaticClass()));
+    FVector CameraLocation = PlayerCamera->GetComponentLocation();
+    FVector CameraForwardVector = PlayerCamera->GetForwardVector();
+    FVector TraceEnd = CameraLocation + CameraForwardVector * 5000.f;
 
     FCollisionQueryParams QueryParams;
-    QueryParams.AddIgnoredActor(this);
-    GetWorld()->LineTraceSingleByChannel(Hit, GunLocation, TraceEnd, ECollisionChannel::ECC_Camera, QueryParams);
+    QueryParams.AddIgnoredActor(PlayerPawn);
+
+    GetWorld()->LineTraceSingleByChannel(Hit, CameraLocation, TraceEnd, ECollisionChannel::ECC_Camera, QueryParams);
 
     if (Hit.bBlockingHit)
     {

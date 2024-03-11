@@ -15,19 +15,20 @@ APlayerBase::APlayerBase() noexcept
 
 	AIPerceptionStimuliSource = CreateDefaultSubobject<UAIPerceptionStimuliSourceComponent>(TEXT("AIPerceptionStimuliSource"));
 
-	Gun = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Gun"));
-	Gun->SetupAttachment(GetMesh(), FName("hand_r"));
-
 	SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("Spring Arm"));
 	SpringArm->SetupAttachment(GetCapsuleComponent());
 
-	Torch = CreateDefaultSubobject<USpotLightComponent>(TEXT("Torch"));
-	Torch->SetupAttachment(SpringArm);
-
-	SpringArm->bDoCollisionTest = false;
-
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	Camera->SetupAttachment(SpringArm);
+
+	Torch = CreateDefaultSubobject<USpotLightComponent>(TEXT("Torch"));
+	Torch->SetupAttachment(Camera);
+
+	SpringArm->bDoCollisionTest = true;
+
+	Gun = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Gun"));
+	//Gun->SetupAttachment(SpringArm);
+	Gun->SetupAttachment(GetMesh(), FName("hand_r"));
 }
 
 // Called when the game starts or when spawned
