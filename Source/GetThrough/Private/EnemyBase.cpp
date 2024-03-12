@@ -71,9 +71,3 @@ bool AEnemyBase::IsDead() const noexcept
 {
 	return bIsDead;
 }
-
-void AEnemyBase::SetHealth(float NewHealth) noexcept
-{
-	Health = NewHealth;
-}
-

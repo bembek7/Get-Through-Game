@@ -26,9 +26,6 @@ public:
 	UFUNCTION(BlueprintCallable)
 	bool IsDead() const noexcept;
 
-	UFUNCTION(BlueprintCallable)
-	void SetHealth(float NewHealth) noexcept;
-
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -42,8 +39,15 @@ private:
 public:
 
 protected:
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(BlueprintReadWrite)
 	float Health = 100.f;
+
+	UPROPERTY(BlueprintReadWrite)
+	float ChaseSpeed = 600.f;
+
+	UPROPERTY(BlueprintReadWrite)
+	float RoamSpeed = 50.f;
+
 private:
 	bool bIsDead = false;
 	
