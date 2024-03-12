@@ -22,6 +22,10 @@ void APlayerControllerBase::BeginPlay()
     DeathWidget->AddToPlayerScreen();
     DeathWidget->SetVisibility(ESlateVisibility::Collapsed);
 
+    PauseWidget = CreateWidget<UUserWidget>(this, PauseWidgetClass);
+    PauseWidget->AddToPlayerScreen();
+    PauseWidget->SetVisibility(ESlateVisibility::Collapsed);
+
     HUDWidget = CreateWidget<UUserWidget>(this, HUDWidgetClass);
     HUDWidget->AddToPlayerScreen();
 
@@ -69,6 +73,10 @@ void APlayerControllerBase::SetupInput(UInputComponent* PlayerInputComponent) no
         {
             PlayerEnhancedInputComponent->BindAction(IACCTV, ETriggerEvent::Started, this, &APlayerControllerBase::ToggleCCTVView);
         }
+        if (IAPause)
+        {
+            PlayerEnhancedInputComponent->BindAction(IAPause, ETriggerEvent::Started, this, &APlayerControllerBase::PauseGame);
+        }
     }
 }
 
@@ -84,6 +92,28 @@ void APlayerControllerBase::PlayerDied() noexcept
     if (DeathWidget)
     {
         DeathWidget->SetVisibility(ESlateVisibility::Visible);
+    }
+}
+
+void APlayerControllerBase::PauseGame() noexcept
+{
+    if (!IsPaused())
+    {
+        UGameplayStatics::SetGamePaused(GetWorld(), true);
+        PauseWidget->SetVisibility(ESlateVisibility::Visible);
+        bShowMouseCursor = true;
+        SetInputMode(FInputModeUIOnly());
+    }
+}
+
+void APlayerControllerBase::UnpauseGame() noexcept
+{
+    if (IsPaused())
+    {
+        UGameplayStatics::SetGamePaused(GetWorld(), false);
+        PauseWidget->SetVisibility(ESlateVisibility::Collapsed);
+        SetInputMode(FInputModeGameOnly());
+        bShowMouseCursor = false;
     }
 }
 

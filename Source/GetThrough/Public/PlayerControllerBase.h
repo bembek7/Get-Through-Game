@@ -27,6 +27,11 @@ public:
 	virtual FGenericTeamId GetGenericTeamId() const override;
 
 	void PlayerDied() noexcept;
+
+	void PauseGame() noexcept;
+
+	void UnpauseGame() noexcept;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -67,6 +72,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Enhanced Input")
 	UInputAction* IACCTV;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Enhanced Input")
+	UInputAction* IAPause;
+
 	UPROPERTY(EditDefaultsOnly)
 	USoundBase* GunshotSound;
 
@@ -75,6 +83,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<UUserWidget>HUDWidgetClass;
+
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<UUserWidget>PauseWidgetClass;
 
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<AActor>CCTVClass;
@@ -95,6 +106,7 @@ private:
 	AActor* CCTV;
 	FGenericTeamId TeamId = FGenericTeamId(0);
 	UUserWidget* DeathWidget;
+	UUserWidget* PauseWidget;
 	UUserWidget* HUDWidget;
 	FVector LastRecordedMouseLocation;
 	FRotator LastRecordedRotationWithMouseInViewport;
