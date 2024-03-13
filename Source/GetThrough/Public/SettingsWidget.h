@@ -34,9 +34,28 @@ protected:
 	UPROPERTY(EditAnywhere, meta = (BindWidget))
 	USlider* Volume;
 
+	UPROPERTY(EditDefaultsOnly)
+	USoundMix* MasterSoundMix;
+
+	UPROPERTY(EditDefaultsOnly)
+	USoundClass* MasterSoundClass;
+
 private:
 	UFUNCTION()
 	void ChangeResolution() const noexcept;
+
+	UFUNCTION()
+	void ChangeWindowMode() const noexcept;
+
+	UFUNCTION()
+	void ChangeFrameRate() const noexcept;
+
+	UFUNCTION()
+	void ChangeVolume() const noexcept;
+
+	float StringToFrameRate(const FString& StringFrameRate) const noexcept;
+
+	EWindowMode::Type StringToWindowMode(const FString& StringWindowMode) const noexcept;
 
 	FIntPoint StringToResolution(const FString& StringResolution) const noexcept;
 
