@@ -28,6 +28,9 @@ protected:
 	UPROPERTY(EditAnywhere, meta = (BindWidget))
 	UButton* QuitButton;
 
+	UPROPERTY(EditAnywhere, meta = (BindWidget))
+	UUserWidget* SettingsWidget;
+
 private:
 	UFUNCTION()
 	void QuitGame() const noexcept;
