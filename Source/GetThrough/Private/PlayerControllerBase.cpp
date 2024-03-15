@@ -29,6 +29,11 @@ void APlayerControllerBase::BeginPlay()
 
     HUDWidget = CreateWidget<UUserWidget>(this, HUDWidgetClass);
     HUDWidget->AddToPlayerScreen();
+    HUDWidget->SetVisibility(ESlateVisibility::Collapsed);
+
+    MainMenuWidget = CreateWidget<UUserWidget>(this, MainMenuWidgetClass);
+    MainMenuWidget->AddToPlayerScreen();
+    MainMenuWidget->SetVisibility(ESlateVisibility::Visible);
 
     if (ULocalPlayer* LocalPlayer = Cast<ULocalPlayer>(GetLocalPlayer()))
     {
@@ -40,11 +45,7 @@ void APlayerControllerBase::BeginPlay()
             }
         }
     }
-    //bShowMouseCursor = true;
-    //CurrentMouseCursor = EMouseCursor::Crosshairs;
-    //auto InputMode = FInputModeGameAndUI();
-    //InputMode.SetHideCursorDuringCapture(false);
-    SetInputMode(FInputModeGameOnly());
+    PauseGame();
 }
 
 void APlayerControllerBase::Tick(float DeltaTime)
@@ -76,7 +77,7 @@ void APlayerControllerBase::SetupInput(UInputComponent* PlayerInputComponent) no
         }
         if (IAPause)
         {
-            PlayerEnhancedInputComponent->BindAction(IAPause, ETriggerEvent::Started, this, &APlayerControllerBase::PauseGame);
+            PlayerEnhancedInputComponent->BindAction(IAPause, ETriggerEvent::Started, this, &APlayerControllerBase::PauseCalled);
         }
     }
 }
@@ -89,6 +90,8 @@ FGenericTeamId APlayerControllerBase::GetGenericTeamId() const
 void APlayerControllerBase::PlayerDied() noexcept
 {
     SetInputMode(FInputModeUIOnly());
+    bShowMouseCursor = true;
+    HUDWidget->SetVisibility(ESlateVisibility::Collapsed);
     Cast<APlayerBase>(GetPawn())->TurnTorchOff();
     if (DeathWidget)
     {
@@ -101,10 +104,16 @@ void APlayerControllerBase::PauseGame() noexcept
     if (!IsPaused())
     {
         UGameplayStatics::SetGamePaused(GetWorld(), true);
-        PauseWidget->SetVisibility(ESlateVisibility::Visible);
+        HUDWidget->SetVisibility(ESlateVisibility::Collapsed);
         bShowMouseCursor = true;
         SetInputMode(FInputModeUIOnly());
     }
+}
+
+void APlayerControllerBase::PauseCalled() noexcept
+{
+    PauseWidget->SetVisibility(ESlateVisibility::Visible);
+    PauseGame();
 }
 
 void APlayerControllerBase::UnpauseGame() noexcept
@@ -112,7 +121,7 @@ void APlayerControllerBase::UnpauseGame() noexcept
     if (IsPaused())
     {
         UGameplayStatics::SetGamePaused(GetWorld(), false);
-        PauseWidget->SetVisibility(ESlateVisibility::Collapsed);
+        HUDWidget->SetVisibility(ESlateVisibility::Visible);
         SetInputMode(FInputModeGameOnly());
         bShowMouseCursor = false;
     }

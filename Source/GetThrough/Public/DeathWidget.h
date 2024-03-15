@@ -20,11 +20,6 @@ public:
 	virtual void NativeConstruct() override;
 
 protected:
-	UPROPERTY(EditAnywhere, meta = (BindWidget))
-	UButton* PlayAgainButton;
-
-	UPROPERTY(EditAnywhere, meta = (BindWidget))
-	UButton* QuitButton;
 
 private:
 	UFUNCTION()
@@ -32,4 +27,13 @@ private:
 
 	UFUNCTION()
 	void PlayAgain() const noexcept;
+
+public:
+
+protected:
+	UPROPERTY(EditAnywhere, meta = (BindWidget))
+	UButton* PlayAgainButton;
+
+	UPROPERTY(EditAnywhere, meta = (BindWidget))
+	UButton* QuitButton;
 };

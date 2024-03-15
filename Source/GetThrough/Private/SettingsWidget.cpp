@@ -55,7 +55,7 @@ void USettingsWidget::NativeConstruct()
 		WindowMode->AddOption(WindowModeMapping.Key);
 	}
 
-	LoadSettings();
+	OnNativeVisibilityChanged.AddUFunction(this, FName("LoadSettings"));
 }
 
 void USettingsWidget::ChangeResolution() const noexcept
@@ -93,7 +93,6 @@ void USettingsWidget::Close() noexcept
 void USettingsWidget::SaveSettings() noexcept
 {
 	GameSettings->ApplySettings(true);
-
 	USaveGameBase* Save = Cast<USaveGameBase>(UGameplayStatics::LoadGameFromSlot(USaveGameBase::SaveSlotName, USaveGameBase::SaveIndex));
 	if (!Save)
 	{
@@ -110,20 +109,23 @@ void USettingsWidget::SaveSettings() noexcept
 
 void USettingsWidget::LoadSettings() noexcept
 {
-	USaveGameBase* Save = Cast<USaveGameBase>(UGameplayStatics::LoadGameFromSlot(USaveGameBase::SaveSlotName, USaveGameBase::SaveIndex));
-	if (!Save)
+	if (GetVisibility() == ESlateVisibility::Visible)
 	{
-		Save = Cast<USaveGameBase>(UGameplayStatics::CreateSaveGameObject(USaveGameBase::StaticClass()));
-	}
-	Volume->SetValue(Save->Volume);
-	FrameRate->SetSelectedOption(*FrameRateMap.FindKey(Save->FrameRate));
-	Resolution->SetSelectedOption(*ResolutionMap.FindKey(Save->Resolution));
-	WindowMode->SetSelectedOption(*WindowModeMap.FindKey(Save->WindowMode));
+		USaveGameBase* Save = Cast<USaveGameBase>(UGameplayStatics::LoadGameFromSlot(USaveGameBase::SaveSlotName, USaveGameBase::SaveIndex));
+		if (!Save)
+		{
+			Save = Cast<USaveGameBase>(UGameplayStatics::CreateSaveGameObject(USaveGameBase::StaticClass()));
+		}
+		Volume->SetValue(Save->Volume);
+		FrameRate->SetSelectedOption(*FrameRateMap.FindKey(Save->FrameRate));
+		Resolution->SetSelectedOption(*ResolutionMap.FindKey(Save->Resolution));
+		WindowMode->SetSelectedOption(*WindowModeMap.FindKey(Save->WindowMode));
 
-	GameSettings->SetFrameRateLimit(Save->FrameRate);
-	GameSettings->SetScreenResolution(Save->Resolution);
-	GameSettings->SetFullscreenMode(Save->WindowMode);
-	UGameplayStatics::SetSoundMixClassOverride(GetWorld(), MasterSoundMix, MasterSoundClass, Save->Volume);
-	
-	GameSettings->ApplySettings(true);
+		GameSettings->SetFrameRateLimit(Save->FrameRate);
+		GameSettings->SetFullscreenMode(Save->WindowMode);
+		GameSettings->SetScreenResolution(Save->Resolution);
+		UGameplayStatics::SetSoundMixClassOverride(GetWorld(), MasterSoundMix, MasterSoundClass, Save->Volume);
+
+		GameSettings->ApplySettings(true);
+	}
 }

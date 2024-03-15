@@ -37,7 +37,8 @@ void UPauseWidget::OpenSettings() noexcept
 	SettingsWidget->SetVisibility(ESlateVisibility::Visible);
 }
 
-void UPauseWidget::Continue() const noexcept
+void UPauseWidget::Continue() noexcept
 {
 	Cast<APlayerControllerBase>(GetOwningPlayer())->UnpauseGame();
+	SetVisibility(ESlateVisibility::Collapsed);
 }

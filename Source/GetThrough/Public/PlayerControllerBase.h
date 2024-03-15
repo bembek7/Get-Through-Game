@@ -28,8 +28,6 @@ public:
 
 	void PlayerDied() noexcept;
 
-	void PauseGame() noexcept;
-
 	void UnpauseGame() noexcept;
 
 protected:
@@ -48,6 +46,10 @@ private:
 
 	UFUNCTION(Category = "Input Response")
 	void ToggleCCTVView() noexcept;
+
+	void PauseGame() noexcept;
+
+	void PauseCalled() noexcept;
 
 	void RotatePlayerToFaceTheCursor(float DeltaTime) noexcept;
 
@@ -88,6 +90,9 @@ protected:
 	TSubclassOf<UUserWidget>PauseWidgetClass;
 
 	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<UUserWidget>MainMenuWidgetClass;
+
+	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<AActor>CCTVClass;
 
 	UPROPERTY(EditDefaultsOnly)
@@ -108,6 +113,7 @@ private:
 	UUserWidget* DeathWidget;
 	UUserWidget* PauseWidget;
 	UUserWidget* HUDWidget;
+	UUserWidget* MainMenuWidget;
 	FVector LastRecordedMouseLocation;
 	FRotator LastRecordedRotationWithMouseInViewport;
 };

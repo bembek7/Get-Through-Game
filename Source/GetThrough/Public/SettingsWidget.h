@@ -23,6 +23,32 @@ public:
 	virtual void NativeConstruct() override;
 
 protected:
+
+private:
+	UFUNCTION()
+	void ChangeResolution() const noexcept;
+
+	UFUNCTION()
+	void ChangeWindowMode() const noexcept;
+
+	UFUNCTION()
+	void ChangeFrameRate() const noexcept;
+
+	UFUNCTION()
+	void ChangeVolume() const noexcept;
+
+	UFUNCTION()
+	void Close() noexcept;
+
+	UFUNCTION()
+	void SaveSettings() noexcept;
+
+	UFUNCTION()
+	void LoadSettings() noexcept;
+
+public:
+
+protected:
 	UPROPERTY(EditAnywhere, meta = (BindWidget))
 	UComboBoxString* Resolution;
 
@@ -48,26 +74,6 @@ protected:
 	USoundClass* MasterSoundClass;
 
 private:
-	UFUNCTION()
-	void ChangeResolution() const noexcept;
-
-	UFUNCTION()
-	void ChangeWindowMode() const noexcept;
-
-	UFUNCTION()
-	void ChangeFrameRate() const noexcept;
-
-	UFUNCTION()
-	void ChangeVolume() const noexcept;
-
-	UFUNCTION()
-	void Close() noexcept;
-
-	UFUNCTION()
-	void SaveSettings() noexcept;
-
-	UFUNCTION()
-	void LoadSettings() noexcept;
 
 	UGameUserSettings* GameSettings;
 
@@ -82,9 +88,9 @@ private:
 
 	const TMap<FString, FIntPoint> ResolutionMap =
 	{
-		{"1280x720", (1280, 720)},
-		{"1600x900", (1600, 900)},
-		{"1920x1080", (1920, 1080)}
+		{"1280x720", FIntPoint(1280, 720)},
+		{"1600x900", FIntPoint(1600, 900)},
+		{"1920x1080", FIntPoint(1920, 1080)}
 	};
 
 	const TMap<FString, EWindowMode::Type> WindowModeMap =

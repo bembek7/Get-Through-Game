@@ -20,6 +20,20 @@ public:
 	virtual void NativeConstruct() override;
 
 protected:
+
+private:
+	UFUNCTION()
+	void QuitGame() const noexcept;
+
+	UFUNCTION()
+	void OpenSettings() noexcept;
+
+	UFUNCTION()
+	void Continue() noexcept;
+
+public:
+
+protected:
 	UPROPERTY(EditAnywhere, meta = (BindWidget))
 	UButton* ContinueButton;
 
@@ -34,14 +48,4 @@ protected:
 
 	UPROPERTY(EditAnywhere, meta = (BindWidget))
 	UVerticalBox* MainButtons;
-
-private:
-	UFUNCTION()
-	void QuitGame() const noexcept;
-
-	UFUNCTION()
-	void OpenSettings() noexcept;
-
-	UFUNCTION()
-	void Continue() const noexcept;
 };
