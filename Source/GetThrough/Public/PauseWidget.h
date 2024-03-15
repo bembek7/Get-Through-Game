@@ -7,6 +7,7 @@
 #include "PauseWidget.generated.h"
 
 class UButton;
+class UVerticalBox;
 /**
  * 
  */
@@ -31,12 +32,15 @@ protected:
 	UPROPERTY(EditAnywhere, meta = (BindWidget))
 	UUserWidget* SettingsWidget;
 
+	UPROPERTY(EditAnywhere, meta = (BindWidget))
+	UVerticalBox* MainButtons;
+
 private:
 	UFUNCTION()
 	void QuitGame() const noexcept;
 
 	UFUNCTION()
-	void OpenSettings() const noexcept;
+	void OpenSettings() noexcept;
 
 	UFUNCTION()
 	void Continue() const noexcept;

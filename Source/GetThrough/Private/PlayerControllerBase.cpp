@@ -13,6 +13,7 @@
 #include "EnemyBase.h"
 #include "Perception/AISense_Hearing.h"
 #include "Camera/CameraComponent.h"
+#include "SaveGameBase.h"
 
 void APlayerControllerBase::BeginPlay()
 {

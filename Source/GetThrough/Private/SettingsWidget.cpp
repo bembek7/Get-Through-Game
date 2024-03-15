@@ -4,16 +4,17 @@
 #include "SettingsWidget.h"
 #include "Components/Slider.h"
 #include "Components/ComboBoxString.h"
+#include "Components/Button.h"
 #include "GameFramework/GameUserSettings.h"
 #include "Kismet/GameplayStatics.h"
 #include "Sound/SoundMix.h"
+#include "SaveGameBase.h"
 
 void USettingsWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 
 	GameSettings = UGameUserSettings::GetGameUserSettings();
-	GameSettings->SetFullscreenMode(EWindowMode::Windowed);
 
 	FScriptDelegate ChangeResolutionDelegate;
 	ChangeResolutionDelegate.BindUFunction(this, FName("ChangeResolution"));
@@ -30,96 +31,99 @@ void USettingsWidget::NativeConstruct()
 	FScriptDelegate ChangeVolumeDelegate;
 	ChangeVolumeDelegate.BindUFunction(this, FName("ChangeVolume"));
 	Volume->OnValueChanged.AddUnique(ChangeVolumeDelegate);
+
+	FScriptDelegate BackDelegate;
+	BackDelegate.BindUFunction(this, FName("Close"));
+	BackButton->OnClicked.AddUnique(BackDelegate);
+
+	FScriptDelegate SaveDelegate;
+	SaveDelegate.BindUFunction(this, FName("SaveSettings"));
+	SaveButton->OnClicked.AddUnique(SaveDelegate);
+
+	for (auto& ResolutionMapping : ResolutionMap)
+	{
+		Resolution->AddOption(ResolutionMapping.Key);
+	}
+
+	for (auto& FrameRateMapping : FrameRateMap)
+	{
+		FrameRate->AddOption(FrameRateMapping.Key);
+	}
+
+	for (auto& WindowModeMapping : WindowModeMap)
+	{
+		WindowMode->AddOption(WindowModeMapping.Key);
+	}
+
+	LoadSettings();
 }
 
 void USettingsWidget::ChangeResolution() const noexcept
 {
 	FString ResolutionPicked = Resolution->GetSelectedOption();
-	GameSettings->SetScreenResolution(StringToResolution(ResolutionPicked));
-	GameSettings->ApplySettings(true);
+	GameSettings->SetScreenResolution(*ResolutionMap.Find(ResolutionPicked));
 }
 
 void USettingsWidget::ChangeWindowMode() const noexcept
 {
 	FString WindowModePicked = WindowMode->GetSelectedOption();
-	GameSettings->SetFullscreenMode(StringToWindowMode(WindowModePicked));
-	GameSettings->ApplySettings(true);
+	GameSettings->SetFullscreenMode(*WindowModeMap.Find(WindowModePicked));
 }
 
 void USettingsWidget::ChangeFrameRate() const noexcept
 {
 	FString FrameRatePicked = FrameRate->GetSelectedOption();
-	GameSettings->SetFrameRateLimit(StringToFrameRate(FrameRatePicked));
-	GameSettings->ApplySettings(true);
+	GameSettings->SetFrameRateLimit(*FrameRateMap.Find(FrameRatePicked));
 }
 
 void USettingsWidget::ChangeVolume() const noexcept
 {
-	UE_LOG(LogTemp, Warning, TEXT("New volume: %f"), Volume->GetValue());
 	UGameplayStatics::SetSoundMixClassOverride(GetWorld(), MasterSoundMix, MasterSoundClass, Volume->GetValue());
-	UGameplayStatics::PushSoundMixModifier(GetWorld(), MasterSoundMix);
 }
 
-float USettingsWidget::StringToFrameRate(const FString& StringFrameRate) const noexcept
+void USettingsWidget::Close() noexcept
 {
-	if (StringFrameRate == "30 FPS")
+	for (auto Widget : GetParent()->GetAllChildren())
 	{
-		return 30;
+		Widget->SetVisibility(ESlateVisibility::Visible); // temporary solution
 	}
-	else
-	{
-		if (StringFrameRate == "60 FPS")
-		{
-			return 60;
-		}
-		else
-		{
-			if (StringFrameRate == "120 FPS")
-			{
-				return 120;
-			}
-			else
-			{
-				if (StringFrameRate == "144 FPS")
-				{
-					return 144;
-				}
-			}
-		}
-	}
-	return 1000;
+	SetVisibility(ESlateVisibility::Collapsed);
 }
 
-EWindowMode::Type USettingsWidget::StringToWindowMode(const FString& StringWindowMode) const noexcept
+void USettingsWidget::SaveSettings() noexcept
 {
-	if (StringWindowMode == "Window")
+	GameSettings->ApplySettings(true);
+
+	USaveGameBase* Save = Cast<USaveGameBase>(UGameplayStatics::LoadGameFromSlot(USaveGameBase::SaveSlotName, USaveGameBase::SaveIndex));
+	if (!Save)
 	{
-		return EWindowMode::Windowed;
+		Save = Cast<USaveGameBase>(UGameplayStatics::CreateSaveGameObject(USaveGameBase::StaticClass()));
 	}
-	else
-	{
-		if (StringWindowMode == "Borderless Window")
-		{
-			return EWindowMode::WindowedFullscreen;
-		}
-	}
-	return EWindowMode::Fullscreen;
+	Save->Volume = Volume->GetValue();
+	Save->FrameRate = GameSettings->GetFrameRateLimit();
+	Save->Resolution = GameSettings->GetScreenResolution();
+	Save->WindowMode = GameSettings->GetFullscreenMode();
+	UGameplayStatics::SaveGameToSlot(Save, USaveGameBase::SaveSlotName, USaveGameBase::SaveIndex);
+
+	Close();
 }
 
-
-// I don't like this solution but, I think the only thing you could do to avoid it would be a button for every resolution.
-FIntPoint USettingsWidget::StringToResolution(const FString& StringResolution) const noexcept
+void USettingsWidget::LoadSettings() noexcept
 {
-	if (StringResolution == "1280x720")
+	USaveGameBase* Save = Cast<USaveGameBase>(UGameplayStatics::LoadGameFromSlot(USaveGameBase::SaveSlotName, USaveGameBase::SaveIndex));
+	if (!Save)
 	{
-		return FIntPoint(1280, 720);
+		Save = Cast<USaveGameBase>(UGameplayStatics::CreateSaveGameObject(USaveGameBase::StaticClass()));
 	}
-	else
-	{
-		if (StringResolution == "1600x900")
-		{
-			return FIntPoint(1600, 900);
-		}
-	}
-	return FIntPoint(1920, 1080);
+	Volume->SetValue(Save->Volume);
+	FrameRate->SetSelectedOption(*FrameRateMap.FindKey(Save->FrameRate));
+	Resolution->SetSelectedOption(*ResolutionMap.FindKey(Save->Resolution));
+	WindowMode->SetSelectedOption(*WindowModeMap.FindKey(Save->WindowMode));
+
+	GameSettings->SetFrameRateLimit(Save->FrameRate);
+	GameSettings->SetScreenResolution(Save->Resolution);
+	GameSettings->SetFullscreenMode(Save->WindowMode);
+	UGameplayStatics::SetSoundMixClassOverride(GetWorld(), MasterSoundMix, MasterSoundClass, Save->Volume);
+	
+	GameSettings->ApplySettings(true);
 }

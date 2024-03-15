@@ -5,6 +5,7 @@
 #include "Components/Button.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "PlayerControllerBase.h"
+#include "Components/VerticalBox.h"
 
 void UPauseWidget::NativeConstruct()
 {
@@ -21,6 +22,8 @@ void UPauseWidget::NativeConstruct()
 	FScriptDelegate ContinueDelegate = FScriptDelegate();
 	ContinueDelegate.BindUFunction(this, FName("Continue"));
 	ContinueButton->OnClicked.AddUnique(ContinueDelegate);
+
+	SettingsWidget->SetVisibility(ESlateVisibility::Collapsed);
 }
 
 void UPauseWidget::QuitGame() const noexcept
@@ -28,9 +31,10 @@ void UPauseWidget::QuitGame() const noexcept
 	UKismetSystemLibrary::QuitGame(GetWorld(), GetOwningPlayer(), EQuitPreference::Quit, false);
 }
 
-void UPauseWidget::OpenSettings() const noexcept
+void UPauseWidget::OpenSettings() noexcept
 {
-	;
+	MainButtons->SetVisibility(ESlateVisibility::Collapsed);
+	SettingsWidget->SetVisibility(ESlateVisibility::Visible);
 }
 
 void UPauseWidget::Continue() const noexcept
