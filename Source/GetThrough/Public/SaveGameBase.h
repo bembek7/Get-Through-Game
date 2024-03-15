@@ -20,7 +20,7 @@ public:
 	static const FString SaveSlotName;
 
 	UPROPERTY()
-	FIntPoint Resolution = (1920, 1080);
+	FIntPoint Resolution = FIntPoint(1920, 1080);
 	UPROPERTY()
 	TEnumAsByte<EWindowMode::Type> WindowMode = EWindowMode::Fullscreen;
 	UPROPERTY()
