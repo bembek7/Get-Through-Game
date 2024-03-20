@@ -7,16 +7,6 @@
 #include "PlayerBase.h"
 #include "Components/CapsuleComponent.h"
 
-// Sets default values
-AEnemyBase::AEnemyBase()
-{
- 	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
-
-	
-}
-
-// Called when the game starts or when spawned
 void AEnemyBase::BeginPlay()
 {
 	Super::BeginPlay();
@@ -25,7 +15,7 @@ void AEnemyBase::BeginPlay()
 	GetCapsuleComponent()->OnComponentHit.AddUnique(OnHitDelegate);
 }
 
-void AEnemyBase::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpuls, const FHitResult& Hit)
+void AEnemyBase::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpuls, const FHitResult& Hit) const noexcept
 {
 	APlayerBase* PlayerPawn = Cast<APlayerBase>(OtherActor);
 	if (PlayerPawn && !PlayerPawn->IsDead())
@@ -41,17 +31,9 @@ void AEnemyBase::Die() noexcept
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
-// Called every frame
 void AEnemyBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
-}
-
-// Called to bind functionality to input
-void AEnemyBase::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
-{
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
 }
 

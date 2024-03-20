@@ -10,11 +10,11 @@ void UDeathWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	FScriptDelegate QuitDelegate = FScriptDelegate();
+	FScriptDelegate QuitDelegate;
 	QuitDelegate.BindUFunction(this, FName("QuitGame"));
 	QuitButton->OnClicked.AddUnique(QuitDelegate);
 
-	FScriptDelegate PlayAgainDelegate = FScriptDelegate();
+	FScriptDelegate PlayAgainDelegate;
 	PlayAgainDelegate.BindUFunction(this, FName("PlayAgain"));
 	PlayAgainButton->OnClicked.AddUnique(PlayAgainDelegate);
 }

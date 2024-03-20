@@ -51,7 +51,6 @@ void APlayerControllerBase::BeginPlay()
 void APlayerControllerBase::Tick(float DeltaTime)
 {
     Super::Tick(DeltaTime);
-    // RotatePlayerToFaceTheCursor(DeltaTime);
 }
 
 void APlayerControllerBase::SetupInput(UInputComponent* PlayerInputComponent) noexcept

@@ -9,15 +9,15 @@
 
 void UMainMenuWidget::NativeConstruct()
 {
-	FScriptDelegate QuitDelegate = FScriptDelegate();
+	FScriptDelegate QuitDelegate;
 	QuitDelegate.BindUFunction(this, FName("QuitGame"));
 	QuitButton->OnClicked.AddUnique(QuitDelegate);
 
-	FScriptDelegate OpenSettingsDelegate = FScriptDelegate();
+	FScriptDelegate OpenSettingsDelegate;
 	OpenSettingsDelegate.BindUFunction(this, FName("OpenSettings"));
 	SettingsButton->OnClicked.AddUnique(OpenSettingsDelegate);
 
-	FScriptDelegate PlayDelegate = FScriptDelegate();
+	FScriptDelegate PlayDelegate;
 	PlayDelegate.BindUFunction(this, FName("PlayGame"));
 	PlayButton->OnClicked.AddUnique(PlayDelegate);
 

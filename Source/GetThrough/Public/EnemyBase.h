@@ -12,14 +12,7 @@ class GETTHROUGH_API AEnemyBase : public ACharacter
 	GENERATED_BODY()
 
 public:
-
-	// Sets default values for this pawn's properties
-	AEnemyBase();
-	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-
-	// Called to bind functionality to input
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	void ApplyDamage(float Damage) noexcept;
 
@@ -27,11 +20,10 @@ public:
 	bool IsDead() const noexcept;
 
 protected:
-	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 	UFUNCTION()
-	void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpuls, const FHitResult& Hit);
+	void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpuls, const FHitResult& Hit) const noexcept;
 
 private:	
 	void Die() noexcept;

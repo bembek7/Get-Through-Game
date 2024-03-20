@@ -11,15 +11,15 @@ void UPauseWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	FScriptDelegate QuitDelegate = FScriptDelegate();
+	FScriptDelegate QuitDelegate;
 	QuitDelegate.BindUFunction(this, FName("QuitGame"));
 	QuitButton->OnClicked.AddUnique(QuitDelegate);
 
-	FScriptDelegate OpenSettingsDelegate = FScriptDelegate();
+	FScriptDelegate OpenSettingsDelegate;
 	OpenSettingsDelegate.BindUFunction(this, FName("OpenSettings"));
 	SettingsButton->OnClicked.AddUnique(OpenSettingsDelegate);
 
-	FScriptDelegate ContinueDelegate = FScriptDelegate();
+	FScriptDelegate ContinueDelegate;
 	ContinueDelegate.BindUFunction(this, FName("Continue"));
 	ContinueButton->OnClicked.AddUnique(ContinueDelegate);
 
