@@ -9,7 +9,7 @@
 class UButton;
 class UVerticalBox;
 /**
- * 
+ *
  */
 UCLASS()
 class GETTHROUGH_API UMainMenuWidget : public UUserWidget

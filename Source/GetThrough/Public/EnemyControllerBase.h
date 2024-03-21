@@ -9,7 +9,7 @@
 #include "EnemyControllerBase.generated.h"
 
 /**
- * 
+ *
  */
 UCLASS()
 class GETTHROUGH_API AEnemyControllerBase : public AAIController

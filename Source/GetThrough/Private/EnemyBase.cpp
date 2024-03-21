@@ -1,6 +1,5 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "EnemyBase.h"
 #include "AIController.h"
 #include "BrainComponent.h"
@@ -34,7 +33,6 @@ void AEnemyBase::Die() noexcept
 void AEnemyBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
 
 void AEnemyBase::ApplyDamage(float Damage) noexcept

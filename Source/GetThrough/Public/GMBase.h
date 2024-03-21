@@ -7,11 +7,10 @@
 #include "GMBase.generated.h"
 
 /**
- * 
+ *
  */
 UCLASS()
 class GETTHROUGH_API AGMBase : public AGameModeBase
 {
 	GENERATED_BODY()
-	
 };

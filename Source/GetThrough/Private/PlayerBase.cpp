@@ -1,6 +1,5 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "PlayerBase.h"
 #include "PlayerControllerBase.h"
 #include "Components/CapsuleComponent.h"
@@ -31,13 +30,11 @@ APlayerBase::APlayerBase() noexcept
 void APlayerBase::BeginPlay()
 {
 	Super::BeginPlay();
-	
 }
 
 void APlayerBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
 
 void APlayerBase::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)

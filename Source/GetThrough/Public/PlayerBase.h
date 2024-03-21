@@ -38,7 +38,6 @@ protected:
 private:
 
 public:
-	
 
 protected:
 	UPROPERTY(EditDefaultsOnly)

@@ -10,7 +10,7 @@ ETeamAttitude::Type AEnemyControllerBase::GetTeamAttitudeTowards(const AActor& O
 {
 	if (APawn const* OtherPawn = Cast<APawn>(&Other))
 	{
-		if (auto const TeamAgent = Cast<IGenericTeamAgentInterface>(OtherPawn->GetController()))
+		if (const IGenericTeamAgentInterface* const TeamAgent = Cast<IGenericTeamAgentInterface>(OtherPawn->GetController()))
 		{
 			if (TeamAgent->GetGenericTeamId() == FGenericTeamId(1))
 			{

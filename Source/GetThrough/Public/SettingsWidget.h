@@ -4,19 +4,18 @@
 #include "Blueprint/UserWidget.h"
 #include "SettingsWidget.generated.h"
 
-
 class UComboBoxString;
 class USlider;
 class UGameUserSettings;
 class UButton;
 /**
- * 
+ *
  */
 UCLASS()
 class GETTHROUGH_API USettingsWidget : public UUserWidget
 {
 	GENERATED_BODY()
-	
+
 public:
 	virtual void NativeConstruct() override;
 

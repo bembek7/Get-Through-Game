@@ -25,7 +25,7 @@ protected:
 	UFUNCTION()
 	void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpuls, const FHitResult& Hit) const noexcept;
 
-private:	
+private:
 	void Die() noexcept;
 
 public:
@@ -42,5 +42,4 @@ protected:
 
 private:
 	bool bIsDead = false;
-	
 };

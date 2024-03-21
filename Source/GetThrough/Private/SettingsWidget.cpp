@@ -1,6 +1,5 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "SettingsWidget.h"
 #include "Components/Slider.h"
 #include "Components/ComboBoxString.h"

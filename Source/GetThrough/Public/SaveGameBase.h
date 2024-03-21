@@ -6,7 +6,7 @@
 
 class UGameUserSettings;
 /**
- * 
+ *
  */
 UCLASS()
 class GETTHROUGH_API USaveGameBase : public USaveGame
