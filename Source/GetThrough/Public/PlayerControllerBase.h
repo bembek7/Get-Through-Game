@@ -9,7 +9,7 @@
 #include "PlayerControllerBase.generated.h"
 
 /**
- * 
+ *
  */
 UCLASS()
 class GETTHROUGH_API APlayerControllerBase : public APlayerController, public IGenericTeamAgentInterface
@@ -26,6 +26,12 @@ public:
 	void PlayerDied() noexcept;
 
 	void UnpauseGame() noexcept;
+
+	UFUNCTION()
+	void EnterTheWinningArea() noexcept;
+
+	UFUNCTION()
+	void ExitTheWinningArea() noexcept;
 
 protected:
 	virtual void BeginPlay() override;
@@ -46,8 +52,6 @@ private:
 	void PauseGame() noexcept;
 
 	void PauseCalled() noexcept;
-
-	void RotatePlayerToFaceTheCursor(float DeltaTime) noexcept;
 
 	void PlayGunshotSound(const FVector& GunLocation) const noexcept;
 
@@ -89,6 +93,9 @@ protected:
 	TSubclassOf<UUserWidget>MainMenuWidgetClass;
 
 	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<UUserWidget>WinningAreaWidgetClass;
+
+	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<AActor>CCTVClass;
 
 	UPROPERTY(EditDefaultsOnly)
@@ -110,6 +117,7 @@ private:
 	UUserWidget* PauseWidget;
 	UUserWidget* HUDWidget;
 	UUserWidget* MainMenuWidget;
+	UUserWidget* WinningAreaWidget;
 	FVector LastRecordedMouseLocation;
 	FRotator LastRecordedRotationWithMouseInViewport;
 };
