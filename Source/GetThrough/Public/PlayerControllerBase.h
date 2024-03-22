@@ -11,6 +11,8 @@
 /**
  *
  */
+class UWinningAreaWidget;
+
 UCLASS()
 class GETTHROUGH_API APlayerControllerBase : public APlayerController, public IGenericTeamAgentInterface
 {
@@ -55,6 +57,10 @@ private:
 
 	void PlayGunshotSound(const FVector& GunLocation) const noexcept;
 
+	void InWinningArea() const noexcept;
+
+	float GetTimeLeftToWin() const noexcept;
+
 public:
 
 protected:
@@ -93,7 +99,7 @@ protected:
 	TSubclassOf<UUserWidget>MainMenuWidgetClass;
 
 	UPROPERTY(EditDefaultsOnly)
-	TSubclassOf<UUserWidget>WinningAreaWidgetClass;
+	TSubclassOf<UWinningAreaWidget>WinningAreaWidgetClass;
 
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<AActor>CCTVClass;
@@ -111,13 +117,16 @@ protected:
 	float MouseYSensitivity = 1.f;
 
 private:
+	const float TimeToWin = 3.f;
+
 	AActor* CCTV;
 	FGenericTeamId TeamId = FGenericTeamId(0);
 	UUserWidget* DeathWidget;
 	UUserWidget* PauseWidget;
 	UUserWidget* HUDWidget;
 	UUserWidget* MainMenuWidget;
-	UUserWidget* WinningAreaWidget;
+	UWinningAreaWidget* WinningAreaWidget;
 	FVector LastRecordedMouseLocation;
 	FRotator LastRecordedRotationWithMouseInViewport;
+	FTimerHandle WinningAreaTimerHandle;
 };

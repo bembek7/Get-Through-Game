@@ -13,6 +13,7 @@
 #include "Perception/AISense_Hearing.h"
 #include "Camera/CameraComponent.h"
 #include "SaveGameBase.h"
+#include "WinningAreaWidget.h"
 
 void APlayerControllerBase::BeginPlay()
 {
@@ -30,7 +31,7 @@ void APlayerControllerBase::BeginPlay()
 	HUDWidget->AddToPlayerScreen();
 	HUDWidget->SetVisibility(ESlateVisibility::Collapsed);
 
-	WinningAreaWidget = CreateWidget<UUserWidget>(this, WinningAreaWidgetClass);
+	WinningAreaWidget = CreateWidget<UWinningAreaWidget>(this, WinningAreaWidgetClass);
 	WinningAreaWidget->AddToPlayerScreen();
 	WinningAreaWidget->SetVisibility(ESlateVisibility::Collapsed);
 
@@ -54,6 +55,11 @@ void APlayerControllerBase::BeginPlay()
 void APlayerControllerBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	if (WinningAreaWidget->IsVisible())
+	{
+		WinningAreaWidget->UpdateCounter(GetTimeLeftToWin());
+	}
 }
 
 void APlayerControllerBase::SetupInput(UInputComponent* PlayerInputComponent) noexcept
@@ -131,12 +137,26 @@ void APlayerControllerBase::UnpauseGame() noexcept
 
 void APlayerControllerBase::EnterTheWinningArea() noexcept
 {
+	GetWorldTimerManager().SetTimer(WinningAreaTimerHandle, this, &APlayerControllerBase::InWinningArea, TimeToWin, false);
 	WinningAreaWidget->SetVisibility(ESlateVisibility::Visible);
 }
 
 void APlayerControllerBase::ExitTheWinningArea() noexcept
 {
 	WinningAreaWidget->SetVisibility(ESlateVisibility::Collapsed);
+}
+
+float APlayerControllerBase::GetTimeLeftToWin() const noexcept
+{
+	const float TimeIn = GetWorldTimerManager().GetTimerElapsed(WinningAreaTimerHandle);
+	if (TimeIn < 0.f)
+	{
+		return 0.f;
+	}
+	else
+	{
+		return TimeToWin - TimeIn;
+	}
 }
 
 void APlayerControllerBase::Walk(const FInputActionValue& IAValue) noexcept
@@ -214,4 +234,9 @@ void APlayerControllerBase::PlayGunshotSound(const FVector& GunLocation) const n
 	UGameplayStatics::PlaySoundAtLocation(GetWorld(), GunshotSound, GunLocation);
 	APawn* PlayerPawn = GetPawn();
 	UAISense_Hearing::ReportNoiseEvent(GetWorld(), PlayerPawn->GetActorLocation(), 1.f, PlayerPawn, GunshotSoundRange, FName("Gunshot"));
+}
+
+void APlayerControllerBase::InWinningArea() const noexcept
+{
+	
 }

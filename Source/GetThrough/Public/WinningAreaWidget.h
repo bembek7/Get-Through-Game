@@ -9,8 +9,23 @@
 /**
  *
  */
+class UTextBlock;
+
 UCLASS()
 class GETTHROUGH_API UWinningAreaWidget : public UUserWidget
 {
 	GENERATED_BODY()
+
+public:
+	void UpdateCounter(const float TimeLeft) const noexcept;
+
+protected:
+
+private:
+
+public:
+
+protected:
+	UPROPERTY(EditAnywhere, meta = (BindWidget))
+	UTextBlock* Counter;
 };
