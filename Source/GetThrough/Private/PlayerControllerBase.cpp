@@ -237,4 +237,5 @@ void APlayerControllerBase::PlayerWon() noexcept
 {
 	WinningAreaWidget->SetVisibility(ESlateVisibility::Collapsed);
 	PlayerWonWidget->SetVisibility(ESlateVisibility::Visible);
+	PauseGame();
 }
