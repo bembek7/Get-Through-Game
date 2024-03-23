@@ -78,6 +78,10 @@ void APlayerControllerBase::SetupInput(UInputComponent* PlayerInputComponent) no
 		{
 			PlayerEnhancedInputComponent->BindAction(IAPause, ETriggerEvent::Started, this, &APlayerControllerBase::PauseCalled);
 		}
+		if (IAJump)
+		{
+			PlayerEnhancedInputComponent->BindAction(IAJump, ETriggerEvent::Started, this, &APlayerControllerBase::JumpTriggered);
+		}
 	}
 }
 
@@ -214,6 +218,12 @@ void APlayerControllerBase::ToggleCCTVView() noexcept
 		IgnoreLookInput = false;
 		SetViewTargetWithBlend(GetPawn());
 	}
+}
+
+void APlayerControllerBase::JumpTriggered() noexcept
+{
+	ACharacter* PlayerCharacter = Cast<ACharacter>(GetPawn());
+	PlayerCharacter->Jump();
 }
 
 void APlayerControllerBase::PlayGunshotSound(const FVector& GunLocation) const noexcept
