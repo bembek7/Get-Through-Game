@@ -57,9 +57,11 @@ private:
 
 	void PlayGunshotSound(const FVector& GunLocation) const noexcept;
 
-	void InWinningArea() const noexcept;
+	void PlayerWon() noexcept;
 
 	float GetTimeLeftToWin() const noexcept;
+
+	void InitializeCommonWidget(UUserWidget*& WidgetToInitialize, const TSubclassOf<UUserWidget>& WidgetClass, ESlateVisibility InitialVisibility) noexcept; // Shorthand for initializing the widgets held by a pointer to UUserWidget
 
 public:
 
@@ -99,6 +101,9 @@ protected:
 	TSubclassOf<UUserWidget>MainMenuWidgetClass;
 
 	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<UUserWidget>PlayerWonWidgetClass;
+
+	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<UWinningAreaWidget>WinningAreaWidgetClass;
 
 	UPROPERTY(EditDefaultsOnly)
@@ -125,6 +130,7 @@ private:
 	UUserWidget* PauseWidget;
 	UUserWidget* HUDWidget;
 	UUserWidget* MainMenuWidget;
+	UUserWidget* PlayerWonWidget;
 	UWinningAreaWidget* WinningAreaWidget;
 	FVector LastRecordedMouseLocation;
 	FRotator LastRecordedRotationWithMouseInViewport;

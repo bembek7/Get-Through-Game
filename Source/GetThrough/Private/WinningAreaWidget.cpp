@@ -5,7 +5,6 @@
 
 void UWinningAreaWidget::UpdateCounter(const float TimeLeft) const noexcept
 {
-	UE_LOG(LogTemp, Warning, TEXT("The float value is: %f"), TimeLeft);
 	const int TimeLeftCeiled = FMath::CeilToInt32(TimeLeft);
 	const FText TextToDisplay = FText::FromString(FString::Printf(TEXT("Survive for: %d"), TimeLeftCeiled));
 	Counter->SetText(TextToDisplay);
