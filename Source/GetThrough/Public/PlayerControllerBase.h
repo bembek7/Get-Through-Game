@@ -51,9 +51,6 @@ private:
 	UFUNCTION(Category = "Input Response")
 	void ToggleCCTVView() noexcept;
 
-	UFUNCTION(Category = "Input Response")
-	void JumpTriggered() noexcept;
-
 	void PauseGame() noexcept;
 
 	void PauseCalled() noexcept;
@@ -87,9 +84,6 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Enhanced Input")
 	UInputAction* IAPause;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Enhanced Input")
-	UInputAction* IAJump;
 
 	UPROPERTY(EditDefaultsOnly)
 	USoundBase* GunshotSound;
