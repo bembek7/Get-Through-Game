@@ -25,7 +25,10 @@ void UMainMenuWidget::NativeConstruct()
 
 void UMainMenuWidget::PlayGame() noexcept
 {
-	Cast<APlayerControllerBase>(GetOwningPlayer())->UnpauseGame();
+	if (APlayerControllerBase* OwningPlayer = Cast<APlayerControllerBase>(GetOwningPlayer()))
+	{
+		OwningPlayer->UnpauseGame();
+	}
 	SetVisibility(ESlateVisibility::Collapsed);
 }
 

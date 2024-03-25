@@ -40,8 +40,7 @@ void APlayerBase::Tick(float DeltaTime)
 void APlayerBase::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
-	APlayerControllerBase* PlayerController = Cast<APlayerControllerBase>(GetController());
-	if (PlayerController)
+	if (APlayerControllerBase* PlayerController = Cast<APlayerControllerBase>(GetController()))
 	{
 		PlayerController->SetupInput(PlayerInputComponent);
 	}
@@ -55,8 +54,7 @@ FVector APlayerBase::GetShootingStartLocation() const noexcept
 void APlayerBase::Die() noexcept
 {
 	bIsDead = true;
-	APlayerControllerBase* PlayerController = Cast<APlayerControllerBase>(GetController());
-	if (PlayerController)
+	if (APlayerControllerBase* PlayerController = Cast<APlayerControllerBase>(GetController()))
 	{
 		PlayerController->PlayerDied();
 	}

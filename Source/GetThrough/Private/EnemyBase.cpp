@@ -26,7 +26,10 @@ void AEnemyBase::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UP
 void AEnemyBase::Die() noexcept
 {
 	bIsDead = true;
-	Cast<AAIController>(GetController())->GetBrainComponent()->StopLogic("Controlled pawn died.");
+	if (AAIController* EnemyController = Cast<AAIController>(GetController()))
+	{
+		EnemyController->GetBrainComponent()->StopLogic("Controlled pawn died.");
+	}
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 

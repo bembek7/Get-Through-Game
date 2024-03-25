@@ -38,6 +38,9 @@ void UPauseWidget::OpenSettings() noexcept
 
 void UPauseWidget::Continue() noexcept
 {
-	Cast<APlayerControllerBase>(GetOwningPlayer())->UnpauseGame();
+	if (APlayerControllerBase* OwningPlayer = Cast<APlayerControllerBase>(GetOwningPlayer()))
+	{
+		OwningPlayer->UnpauseGame();
+	}
 	SetVisibility(ESlateVisibility::Collapsed);
 }

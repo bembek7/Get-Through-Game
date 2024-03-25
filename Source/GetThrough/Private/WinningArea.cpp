@@ -24,8 +24,7 @@ void AWinningArea::BeginPlay()
 
 void AWinningArea::OnBoxBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) const noexcept
 {
-	APlayerBase* PlayerPawn = Cast<APlayerBase>(OtherActor);
-	if (PlayerPawn)
+	if (APlayerBase* PlayerPawn = Cast<APlayerBase>(OtherActor))
 	{
 		APlayerControllerBase* PlayerController = Cast<APlayerControllerBase>(PlayerPawn->GetController());
 		if (PlayerController)
@@ -37,8 +36,7 @@ void AWinningArea::OnBoxBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor
 
 void AWinningArea::OnBoxEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex) const noexcept
 {
-	APlayerBase* PlayerPawn = Cast<APlayerBase>(OtherActor);
-	if (PlayerPawn)
+	if (APlayerBase* PlayerPawn = Cast<APlayerBase>(OtherActor))
 	{
 		APlayerControllerBase* PlayerController = Cast<APlayerControllerBase>(PlayerPawn->GetController());
 		if (PlayerController)
