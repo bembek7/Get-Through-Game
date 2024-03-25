@@ -78,6 +78,10 @@ void APlayerControllerBase::SetupInput(UInputComponent* PlayerInputComponent) no
 		{
 			PlayerEnhancedInputComponent->BindAction(IAPause, ETriggerEvent::Started, this, &APlayerControllerBase::PauseCalled);
 		}
+		if (IASwitchCCTV)
+		{
+			PlayerEnhancedInputComponent->BindAction(IASwitchCCTV, ETriggerEvent::Started, this, &APlayerControllerBase::SwitchCCTV);
+		}
 	}
 }
 
@@ -98,7 +102,10 @@ void APlayerControllerBase::PlayerDied() noexcept
 	SetInputMode(FInputModeUIOnly());
 	bShowMouseCursor = true;
 	HUDWidget->SetVisibility(ESlateVisibility::Collapsed);
-	Cast<APlayerBase>(GetPawn())->TurnTorchOff();
+	if (APlayerBase* PlayerPawn = Cast<APlayerBase>(GetPawn()))
+	{
+		PlayerPawn->TurnTorchOff();
+	}
 	DeathWidget->SetVisibility(ESlateVisibility::Visible);
 }
 
@@ -151,9 +158,11 @@ float APlayerControllerBase::GetTimeLeftToWin() const noexcept
 void APlayerControllerBase::Walk(const FInputActionValue& IAValue) noexcept
 {
 	const FVector2D MoveVector = IAValue.Get<FVector2D>();
-	APawn* PlayerPawn = GetPawn();
-	PlayerPawn->AddMovementInput(PlayerPawn->GetActorRightVector(), MoveVector.X);
-	PlayerPawn->AddMovementInput(PlayerPawn->GetActorForwardVector(), MoveVector.Y);
+	if (APawn* PlayerPawn = GetPawn())
+	{
+		PlayerPawn->AddMovementInput(PlayerPawn->GetActorRightVector(), MoveVector.X);
+		PlayerPawn->AddMovementInput(PlayerPawn->GetActorForwardVector(), MoveVector.Y);
+	}
 }
 
 void APlayerControllerBase::Look(const FInputActionValue& IAValue) noexcept
@@ -166,61 +175,109 @@ void APlayerControllerBase::Look(const FInputActionValue& IAValue) noexcept
 void APlayerControllerBase::Shoot() noexcept
 {
 	const APlayerBase* PlayerPawn = Cast<APlayerBase>(GetPawn());
-	FHitResult Hit;
-	const FVector GunLocation = PlayerPawn->GetShootingStartLocation();
-	const USceneComponent* PlayerCamera = Cast<USceneComponent>(PlayerPawn->GetComponentByClass(UCameraComponent::StaticClass()));
-	const FVector CameraLocation = PlayerCamera->GetComponentLocation();
-	const FVector CameraForwardVector = PlayerCamera->GetForwardVector();
-	const FVector TraceEnd = CameraLocation + CameraForwardVector * 5000.f;
-
-	FCollisionQueryParams QueryParams;
-	QueryParams.AddIgnoredActor(PlayerPawn);
-
-	GetWorld()->LineTraceSingleByChannel(Hit, CameraLocation, TraceEnd, ECollisionChannel::ECC_Camera, QueryParams);
-
-	if (Hit.bBlockingHit)
+	if (PlayerPawn)
 	{
-		DrawDebugLine(GetWorld(), GunLocation, Hit.ImpactPoint, FColor::Yellow, false, 0.2f, 0, 2.0f);
-	}
-	else
-	{
-		DrawDebugLine(GetWorld(), GunLocation, TraceEnd, FColor::Yellow, false, 0.2f, 0, 2.0f);
-	}
+		FHitResult Hit;
+		const FVector GunLocation = PlayerPawn->GetShootingStartLocation();
+		const USceneComponent* PlayerCamera = Cast<USceneComponent>(PlayerPawn->GetComponentByClass(UCameraComponent::StaticClass()));
+		const FVector CameraLocation = PlayerCamera->GetComponentLocation();
+		const FVector CameraForwardVector = PlayerCamera->GetForwardVector();
+		const FVector TraceEnd = CameraLocation + CameraForwardVector * 5000.f;
 
-	AEnemyBase* EnemyHit = Cast<AEnemyBase>(Hit.GetActor());
-	if (EnemyHit)
-	{
-		EnemyHit->ApplyDamage(GunDamage);
-	}
+		FCollisionQueryParams QueryParams;
 
-	PlayGunshotSound(GunLocation);
+		QueryParams.AddIgnoredActor(PlayerPawn);
+
+		GetWorld()->LineTraceSingleByChannel(Hit, CameraLocation, TraceEnd, ECollisionChannel::ECC_Camera, QueryParams);
+
+		if (Hit.bBlockingHit)
+		{
+			DrawDebugLine(GetWorld(), GunLocation, Hit.ImpactPoint, FColor::Yellow, false, 0.2f, 0, 2.0f);
+		}
+		else
+		{
+			DrawDebugLine(GetWorld(), GunLocation, TraceEnd, FColor::Yellow, false, 0.2f, 0, 2.0f);
+		}
+
+		AEnemyBase* EnemyHit = Cast<AEnemyBase>(Hit.GetActor());
+		if (EnemyHit)
+		{
+			EnemyHit->ApplyDamage(GunDamage);
+		}
+
+		PlayGunshotSound(GunLocation);
+	}
 }
 
 void APlayerControllerBase::ToggleCCTVView() noexcept
 {
-	if (GetViewTarget() != CCTV)
+	if (!bInCCTVView)
 	{
-		if (!CCTV)
+		if (CCTVs.IsEmpty())
 		{
-			CCTV = UGameplayStatics::GetActorOfClass(GetWorld(), CCTVClass);
+			UGameplayStatics::GetAllActorsOfClass(GetWorld(), CCTVClass, CCTVs);
 		}
-		SetViewTargetWithBlend(CCTV);
-		IgnoreMoveInput = true;
-		IgnoreLookInput = true;
+		if (!CCTVs.IsEmpty())
+		{
+			SetViewTargetWithBlend(CCTVs[ViewedCCTVIndex]);
+			IgnoreMoveInput = true;
+			IgnoreLookInput = true;
+			bInCCTVView = true;
+		}
 	}
 	else
 	{
+		bInCCTVView = false;
 		IgnoreMoveInput = false;
 		IgnoreLookInput = false;
 		SetViewTargetWithBlend(GetPawn());
 	}
 }
 
+void APlayerControllerBase::SwitchCCTV(const FInputActionValue& IAValue) noexcept
+{
+	if (bInCCTVView)
+	{
+		const float bForward = IAValue.Get<float>() > 0;
+		if (bForward)
+		{
+			SwitchCCTVForward();
+		}
+		else
+		{
+			SwitchCCTVBackward();
+		}
+	}
+}
+
+void APlayerControllerBase::SwitchCCTVForward() noexcept
+{
+	ViewedCCTVIndex++;
+	if (ViewedCCTVIndex == CCTVs.Num())
+	{
+		ViewedCCTVIndex = 0;
+	}
+	SetViewTargetWithBlend(CCTVs[ViewedCCTVIndex]);
+}
+
+void APlayerControllerBase::SwitchCCTVBackward() noexcept
+{
+	ViewedCCTVIndex--;
+	if (ViewedCCTVIndex < 0)
+	{
+		ViewedCCTVIndex = CCTVs.Num() - 1;
+	}
+	SetViewTargetWithBlend(CCTVs[ViewedCCTVIndex]);
+}
+
 void APlayerControllerBase::PlayGunshotSound(const FVector& GunLocation) const noexcept
 {
 	UGameplayStatics::PlaySoundAtLocation(GetWorld(), GunshotSound, GunLocation);
 	APawn* PlayerPawn = GetPawn();
-	UAISense_Hearing::ReportNoiseEvent(GetWorld(), PlayerPawn->GetActorLocation(), 1.f, PlayerPawn, GunshotSoundRange, FName("Gunshot"));
+	if (PlayerPawn)
+	{
+		UAISense_Hearing::ReportNoiseEvent(GetWorld(), PlayerPawn->GetActorLocation(), 1.f, PlayerPawn, GunshotSoundRange, FName("Gunshot"));
+	}
 }
 
 void APlayerControllerBase::PlayerWon() noexcept
