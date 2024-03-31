@@ -14,10 +14,12 @@ class GETTHROUGH_API AEnemyBase : public ACharacter
 public:
 	virtual void Tick(float DeltaTime) override;
 
-	void ApplyDamage(float Damage) noexcept;
+	void ApplyDamage(const float Damage) noexcept;
 
 	UFUNCTION(BlueprintCallable)
 	bool IsDead() const noexcept;
+
+	void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 protected:
 	virtual void BeginPlay() override;
@@ -25,21 +27,27 @@ protected:
 	UFUNCTION()
 	void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpuls, const FHitResult& Hit) const noexcept;
 
+	void OnHealthUpdate();
+
+	UFUNCTION(BlueprintCallable)
+	void SetHealth(const float NewHealth);
+	
 private:
 	void Die() noexcept;
 
 public:
 
 protected:
-	UPROPERTY(BlueprintReadWrite)
+	UPROPERTY(Replicated)
 	float Health = 100.f;
 
-	UPROPERTY(BlueprintReadWrite)
+	UPROPERTY(Replicated, BlueprintReadWrite)
 	float ChaseSpeed = 600.f;
 
-	UPROPERTY(BlueprintReadWrite)
+	UPROPERTY(Replicated, BlueprintReadWrite)
 	float RoamSpeed = 50.f;
 
 private:
+	UPROPERTY(Replicated)
 	bool bIsDead = false;
 };

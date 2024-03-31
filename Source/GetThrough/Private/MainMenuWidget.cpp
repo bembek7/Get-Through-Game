@@ -27,7 +27,7 @@ void UMainMenuWidget::PlayGame() noexcept
 {
 	if (APlayerControllerBase* OwningPlayer = Cast<APlayerControllerBase>(GetOwningPlayer()))
 	{
-		OwningPlayer->UnpauseGame();
+		OwningPlayer->FocusOnGame();
 	}
 	SetVisibility(ESlateVisibility::Collapsed);
 }

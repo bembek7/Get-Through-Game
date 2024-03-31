@@ -14,20 +14,24 @@
 #include "Camera/CameraComponent.h"
 #include "SaveGameBase.h"
 #include "WinningAreaWidget.h"
+#include "Net/UnrealNetwork.h"
 
 void APlayerControllerBase::BeginPlay()
 {
 	Super::BeginPlay();
 
-	InitializeCommonWidget(DeathWidget, DeathWidgetClass, ESlateVisibility::Collapsed);
-	InitializeCommonWidget(PauseWidget, PauseWidgetClass, ESlateVisibility::Collapsed);
-	InitializeCommonWidget(HUDWidget, HUDWidgetClass, ESlateVisibility::Collapsed);
-	InitializeCommonWidget(PlayerWonWidget, PlayerWonWidgetClass, ESlateVisibility::Collapsed);
-	InitializeCommonWidget(MainMenuWidget, MainMenuWidgetClass, ESlateVisibility::Visible);
+	if (IsLocalPlayerController())
+	{
+		InitializeCommonWidget(DeathWidget, DeathWidgetClass, ESlateVisibility::Collapsed);
+		InitializeCommonWidget(PauseWidget, PauseWidgetClass, ESlateVisibility::Collapsed);
+		InitializeCommonWidget(HUDWidget, HUDWidgetClass, ESlateVisibility::Collapsed);
+		InitializeCommonWidget(PlayerWonWidget, PlayerWonWidgetClass, ESlateVisibility::Collapsed);
+		InitializeCommonWidget(MainMenuWidget, MainMenuWidgetClass, ESlateVisibility::Visible);
 
-	WinningAreaWidget = CreateWidget<UWinningAreaWidget>(this, WinningAreaWidgetClass);
-	WinningAreaWidget->AddToPlayerScreen();
-	WinningAreaWidget->SetVisibility(ESlateVisibility::Collapsed);
+		WinningAreaWidget = CreateWidget<UWinningAreaWidget>(this, WinningAreaWidgetClass);
+		WinningAreaWidget->AddToPlayerScreen();
+		WinningAreaWidget->SetVisibility(ESlateVisibility::Collapsed);
+	}
 
 	if (ULocalPlayer* LocalPlayer = Cast<ULocalPlayer>(GetLocalPlayer()))
 	{
@@ -39,15 +43,16 @@ void APlayerControllerBase::BeginPlay()
 			}
 		}
 	}
-
-	PauseGame();
+	if (IsLocalPlayerController())
+	{
+		FocusOnWidget();
+	}
 }
 
 void APlayerControllerBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
-	if (WinningAreaWidget->IsVisible())
+	if (WinningAreaWidget && WinningAreaWidget->IsVisible())
 	{
 		WinningAreaWidget->UpdateCounter(GetTimeLeftToWin());
 	}
@@ -68,7 +73,7 @@ void APlayerControllerBase::SetupInput(UInputComponent* PlayerInputComponent) no
 		}
 		if (IAShoot)
 		{
-			PlayerEnhancedInputComponent->BindAction(IAShoot, ETriggerEvent::Started, this, &APlayerControllerBase::Shoot);
+			PlayerEnhancedInputComponent->BindAction(IAShoot, ETriggerEvent::Started, this, &APlayerControllerBase::HandleShootInput);
 		}
 		if (IACCTV)
 		{
@@ -101,52 +106,65 @@ void APlayerControllerBase::PlayerDied() noexcept
 {
 	SetInputMode(FInputModeUIOnly());
 	bShowMouseCursor = true;
-	HUDWidget->SetVisibility(ESlateVisibility::Collapsed);
+	if (HUDWidget)
+	{
+		HUDWidget->SetVisibility(ESlateVisibility::Collapsed);
+	}
 	if (APlayerBase* PlayerPawn = Cast<APlayerBase>(GetPawn()))
 	{
 		PlayerPawn->TurnTorchOff();
 	}
-	DeathWidget->SetVisibility(ESlateVisibility::Visible);
+	if (DeathWidget)
+	{
+		DeathWidget->SetVisibility(ESlateVisibility::Visible);
+	}
 }
 
-void APlayerControllerBase::PauseGame() noexcept
+void APlayerControllerBase::FocusOnWidget() noexcept
 {
-	if (!IsPaused())
+	if(HUDWidget)
 	{
-		UGameplayStatics::SetGamePaused(GetWorld(), true);
 		HUDWidget->SetVisibility(ESlateVisibility::Collapsed);
-		bShowMouseCursor = true;
-		SetInputMode(FInputModeUIOnly());
 	}
+	bShowMouseCursor = true;
+	SetInputMode(FInputModeUIOnly());
 }
 
 void APlayerControllerBase::PauseCalled() noexcept
 {
-	PauseWidget->SetVisibility(ESlateVisibility::Visible);
-	PauseGame();
+	if (PauseWidget)
+	{
+		PauseWidget->SetVisibility(ESlateVisibility::Visible);
+	}
+	FocusOnWidget();
 }
 
-void APlayerControllerBase::UnpauseGame() noexcept
+void APlayerControllerBase::FocusOnGame() noexcept
 {
-	if (IsPaused())
+	if (HUDWidget)
 	{
-		UGameplayStatics::SetGamePaused(GetWorld(), false);
 		HUDWidget->SetVisibility(ESlateVisibility::Visible);
-		SetInputMode(FInputModeGameOnly());
-		bShowMouseCursor = false;
 	}
+	SetInputMode(FInputModeGameOnly());
+	bShowMouseCursor = false;
 }
 
 void APlayerControllerBase::EnterTheWinningArea() noexcept
 {
 	GetWorldTimerManager().SetTimer(WinningAreaTimerHandle, this, &APlayerControllerBase::PlayerWon, TimeToWin, false);
-	WinningAreaWidget->SetVisibility(ESlateVisibility::Visible);
+	if (WinningAreaWidget)
+	{
+		WinningAreaWidget->SetVisibility(ESlateVisibility::Visible);
+	}
 }
 
 void APlayerControllerBase::ExitTheWinningArea() noexcept
 {
 	GetWorldTimerManager().ClearTimer(WinningAreaTimerHandle);
-	WinningAreaWidget->SetVisibility(ESlateVisibility::Collapsed);
+	if (WinningAreaWidget)
+	{
+		WinningAreaWidget->SetVisibility(ESlateVisibility::Collapsed);
+	}
 }
 
 float APlayerControllerBase::GetTimeLeftToWin() const noexcept
@@ -172,10 +190,21 @@ void APlayerControllerBase::Look(const FInputActionValue& IAValue) noexcept
 	GetPawn()->AddControllerPitchInput(LookVector.Y * MouseYSensitivity * -1);
 }
 
-void APlayerControllerBase::Shoot() noexcept
+void APlayerControllerBase::HandleShootInput() noexcept
 {
-	const APlayerBase* PlayerPawn = Cast<APlayerBase>(GetPawn());
-	if (PlayerPawn)
+	Server_Shoot();
+
+	const APawn* PlayerPawn = GetPawn();
+	if (!HasAuthority() && PlayerPawn)
+	{
+		PlayGunshotSound(PlayerPawn->GetActorLocation());
+	}
+}
+
+void APlayerControllerBase::Server_Shoot_Implementation()
+{
+	
+	if (const APlayerBase* PlayerPawn = Cast<APlayerBase>(GetPawn()))
 	{
 		FHitResult Hit;
 		const FVector GunLocation = PlayerPawn->GetShootingStartLocation();
@@ -190,22 +219,13 @@ void APlayerControllerBase::Shoot() noexcept
 
 		GetWorld()->LineTraceSingleByChannel(Hit, CameraLocation, TraceEnd, ECollisionChannel::ECC_Camera, QueryParams);
 
-		if (Hit.bBlockingHit)
+		if (AEnemyBase* EnemyHit = Cast<AEnemyBase>(Hit.GetActor()))
 		{
-			DrawDebugLine(GetWorld(), GunLocation, Hit.ImpactPoint, FColor::Yellow, false, 0.2f, 0, 2.0f);
-		}
-		else
-		{
-			DrawDebugLine(GetWorld(), GunLocation, TraceEnd, FColor::Yellow, false, 0.2f, 0, 2.0f);
-		}
-
-		AEnemyBase* EnemyHit = Cast<AEnemyBase>(Hit.GetActor());
-		if (EnemyHit)
-		{
+			UE_LOG(LogTemp, Warning, TEXT("Enemy Hit"));
 			EnemyHit->ApplyDamage(GunDamage);
 		}
-
-		PlayGunshotSound(GunLocation);
+		
+		PlayGunshotSound(PlayerPawn->GetActorLocation());
 	}
 }
 
@@ -282,7 +302,13 @@ void APlayerControllerBase::PlayGunshotSound(const FVector& GunLocation) const n
 
 void APlayerControllerBase::PlayerWon() noexcept
 {
-	WinningAreaWidget->SetVisibility(ESlateVisibility::Collapsed);
-	PlayerWonWidget->SetVisibility(ESlateVisibility::Visible);
-	PauseGame();
+	if (WinningAreaWidget)
+	{
+		WinningAreaWidget->SetVisibility(ESlateVisibility::Collapsed);
+	}
+	if (PlayerWonWidget)
+	{
+		PlayerWonWidget->SetVisibility(ESlateVisibility::Visible);
+	}
+	FocusOnWidget();
 }

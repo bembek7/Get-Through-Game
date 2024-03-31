@@ -5,6 +5,8 @@
 #include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Net/UnrealNetwork.h"
+#include "Engine/Engine.h"
 
 APlayerBase::APlayerBase() noexcept
 {
@@ -25,6 +27,8 @@ APlayerBase::APlayerBase() noexcept
 
 	Gun = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Gun"));
 	Gun->SetupAttachment(GetMesh(), FName("hand_r"));
+
+	bReplicates = true;
 }
 
 void APlayerBase::BeginPlay()
@@ -35,6 +39,10 @@ void APlayerBase::BeginPlay()
 void APlayerBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	if (HasAuthority())
+	{
+		AimPitch = CalculateAimPitch();
+	}
 }
 
 void APlayerBase::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -70,4 +78,17 @@ void APlayerBase::TurnTorchOff() noexcept
 bool APlayerBase::IsDead() const noexcept
 {
 	return bIsDead;
+}
+
+float APlayerBase::CalculateAimPitch() const noexcept
+{
+	const float BaseAimRotation = GetBaseAimRotation().Pitch;
+	return (BaseAimRotation <= 90) ? BaseAimRotation : BaseAimRotation - 360;
+}
+
+void APlayerBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(APlayerBase, AimPitch);
 }

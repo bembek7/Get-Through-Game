@@ -40,7 +40,7 @@ void UPauseWidget::Continue() noexcept
 {
 	if (APlayerControllerBase* OwningPlayer = Cast<APlayerControllerBase>(GetOwningPlayer()))
 	{
-		OwningPlayer->UnpauseGame();
+		OwningPlayer->FocusOnGame();
 	}
 	SetVisibility(ESlateVisibility::Collapsed);
 }

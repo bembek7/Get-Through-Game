@@ -27,7 +27,7 @@ public:
 
 	void PlayerDied() noexcept;
 
-	void UnpauseGame() noexcept;
+	void FocusOnGame() noexcept;
 
 	UFUNCTION()
 	void EnterTheWinningArea() noexcept;
@@ -46,7 +46,10 @@ private:
 	void Look(const FInputActionValue& IAValue) noexcept;
 
 	UFUNCTION(Category = "Input Response")
-	void Shoot() noexcept;
+	void HandleShootInput() noexcept;
+
+	UFUNCTION(Server, Reliable)
+	void Server_Shoot();
 
 	UFUNCTION(Category = "Input Response")
 	void ToggleCCTVView() noexcept;
@@ -58,7 +61,7 @@ private:
 
 	void SwitchCCTVBackward() noexcept;
 
-	void PauseGame() noexcept;
+	void FocusOnWidget() noexcept;
 
 	void PauseCalled() noexcept;
 
