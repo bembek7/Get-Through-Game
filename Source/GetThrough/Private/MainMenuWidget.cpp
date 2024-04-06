@@ -5,9 +5,15 @@
 #include "Kismet/KismetSystemLibrary.h"
 #include "PlayerControllerBase.h"
 #include "Components/VerticalBox.h"
+#include "NWGameInstance.h"
+#include "Components/ScrollBox.h"
+#include "SessionFoundEntry.h"
+#include "OnlineSessionSettings.h"
 
 void UMainMenuWidget::NativeConstruct()
 {
+	Super::NativeConstruct();
+
 	FScriptDelegate QuitDelegate;
 	QuitDelegate.BindUFunction(this, FName("QuitGame"));
 	QuitButton->OnClicked.AddUnique(QuitDelegate);
@@ -16,26 +22,56 @@ void UMainMenuWidget::NativeConstruct()
 	OpenSettingsDelegate.BindUFunction(this, FName("OpenSettings"));
 	SettingsButton->OnClicked.AddUnique(OpenSettingsDelegate);
 
-	FScriptDelegate PlayDelegate;
-	PlayDelegate.BindUFunction(this, FName("PlayGame"));
-	PlayButton->OnClicked.AddUnique(PlayDelegate);
+	FScriptDelegate CreateGameDelegate;
+	CreateGameDelegate.BindUFunction(GetGameInstance(), FName("StartOnlineGame"));
+	CreateGameButton->OnClicked.AddUnique(CreateGameDelegate);
+
+	FScriptDelegate FindGamesDelegate;
+	FindGamesDelegate.BindUFunction(this, FName("FindGames"));
+	FindGamesButton->OnClicked.AddUnique(FindGamesDelegate);
 
 	SettingsWidget->SetVisibility(ESlateVisibility::Collapsed);
 }
 
-void UMainMenuWidget::PlayGame() noexcept
+void UMainMenuWidget::UpdateFoundGamesList(const TArray<FOnlineSessionSearchResult>& GamesList) noexcept
 {
-	if (APlayerControllerBase* OwningPlayer = Cast<APlayerControllerBase>(GetOwningPlayer()))
+	FindGamesButton->SetIsEnabled(true);
+	UE_LOG(LogTemp, Warning, TEXT("Widget updates the list"));
+	FoundGames->ClearChildren();
+	for (const auto& SessionFound : GamesList)
 	{
-		OwningPlayer->FocusOnGame();
+		USessionFoundEntry* Entry = CreateWidget<USessionFoundEntry>(FoundGames, SessionEntryClass);
+		FoundGames->AddChild(Entry);
+		if(Entry)
+		{
+			Entry->SetSessionValues(SessionFound.Session.OwningUserName);
+		}
 	}
-	SetVisibility(ESlateVisibility::Collapsed);
 }
 
 void UMainMenuWidget::OpenSettings() noexcept
 {
 	MainButtons->SetVisibility(ESlateVisibility::Collapsed);
 	SettingsWidget->SetVisibility(ESlateVisibility::Visible);
+}
+
+void UMainMenuWidget::CreateGame() noexcept
+{
+	UNWGameInstance* NetworkGameInstace = Cast<UNWGameInstance>(GetGameInstance());
+	if (NetworkGameInstace)
+	{
+		NetworkGameInstace->StartOnlineGame();
+	}
+}
+
+void UMainMenuWidget::FindGames() noexcept
+{
+	FindGamesButton->SetIsEnabled(false);
+	UNWGameInstance* NetworkGameInstace = Cast<UNWGameInstance>(GetGameInstance());
+	if (NetworkGameInstace)
+	{
+		NetworkGameInstace->FindOnlineGames();
+	}
 }
 
 void UMainMenuWidget::QuitGame() const noexcept

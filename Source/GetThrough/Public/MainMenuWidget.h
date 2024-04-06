@@ -8,6 +8,9 @@
 
 class UButton;
 class UVerticalBox;
+class UScrollBox;
+class USessionFoundEntry;
+
 /**
  *
  */
@@ -19,14 +22,19 @@ class GETTHROUGH_API UMainMenuWidget : public UUserWidget
 public:
 	virtual void NativeConstruct() override;
 
+	void UpdateFoundGamesList(const TArray<FOnlineSessionSearchResult>& GamesList) noexcept;
+
 protected:
 
 private:
 	UFUNCTION()
-	void PlayGame() noexcept;
+	void OpenSettings() noexcept;
 
 	UFUNCTION()
-	void OpenSettings() noexcept;
+	void CreateGame() noexcept;
+
+	UFUNCTION()
+	void FindGames() noexcept;
 
 	UFUNCTION()
 	void QuitGame() const noexcept;
@@ -35,7 +43,10 @@ public:
 
 protected:
 	UPROPERTY(EditAnywhere, meta = (BindWidget))
-	UButton* PlayButton;
+	UButton* CreateGameButton;
+
+	UPROPERTY(EditAnywhere, meta = (BindWidget))
+	UButton* FindGamesButton;
 
 	UPROPERTY(EditAnywhere, meta = (BindWidget))
 	UButton* SettingsButton;
@@ -48,4 +59,10 @@ protected:
 
 	UPROPERTY(EditAnywhere, meta = (BindWidget))
 	UVerticalBox* MainButtons;
+
+	UPROPERTY(EditAnywhere, meta = (BindWidget))
+	UScrollBox* FoundGames;
+
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<USessionFoundEntry>SessionEntryClass;
 };

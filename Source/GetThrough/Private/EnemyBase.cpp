@@ -40,7 +40,6 @@ void AEnemyBase::SetHealth(const float NewHealth)
 {
 	if(HasAuthority())
 	{
-		UE_LOG(LogTemp, Warning, TEXT("%f"), NewHealth);
 		Health = NewHealth;
 		OnHealthUpdate();
 	}

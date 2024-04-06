@@ -30,10 +30,15 @@ public:
 	void FocusOnGame() noexcept;
 
 	UFUNCTION()
+	void CreateGame() noexcept;
+
+	UFUNCTION()
 	void EnterTheWinningArea() noexcept;
 
 	UFUNCTION()
 	void ExitTheWinningArea() noexcept;
+
+	void UpdateFoundGamesList(const TArray<FOnlineSessionSearchResult>& GamesList);
 
 protected:
 	virtual void BeginPlay() override;

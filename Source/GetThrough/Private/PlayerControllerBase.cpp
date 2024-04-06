@@ -15,6 +15,9 @@
 #include "SaveGameBase.h"
 #include "WinningAreaWidget.h"
 #include "Net/UnrealNetwork.h"
+#include "Interfaces/OnlineSessionInterface.h"
+#include "OnlineSessionSettings.h"
+#include "MainMenuWidget.h"
 
 void APlayerControllerBase::BeginPlay()
 {
@@ -26,7 +29,13 @@ void APlayerControllerBase::BeginPlay()
 		InitializeCommonWidget(PauseWidget, PauseWidgetClass, ESlateVisibility::Collapsed);
 		InitializeCommonWidget(HUDWidget, HUDWidgetClass, ESlateVisibility::Collapsed);
 		InitializeCommonWidget(PlayerWonWidget, PlayerWonWidgetClass, ESlateVisibility::Collapsed);
-		InitializeCommonWidget(MainMenuWidget, MainMenuWidgetClass, ESlateVisibility::Visible);
+		
+		ESlateVisibility MainMenuVisibility = ESlateVisibility::Collapsed;
+		if (UGameplayStatics::GetCurrentLevelName(GetWorld()) == "MainMenu")
+		{
+			MainMenuVisibility = ESlateVisibility::Visible;
+		}
+		InitializeCommonWidget(MainMenuWidget, MainMenuWidgetClass, MainMenuVisibility);
 
 		WinningAreaWidget = CreateWidget<UWinningAreaWidget>(this, WinningAreaWidgetClass);
 		WinningAreaWidget->AddToPlayerScreen();
@@ -110,6 +119,10 @@ void APlayerControllerBase::PlayerDied() noexcept
 	{
 		HUDWidget->SetVisibility(ESlateVisibility::Collapsed);
 	}
+	if (PauseWidget)
+	{
+		PauseWidget->SetVisibility(ESlateVisibility::Collapsed);
+	}
 	if (APlayerBase* PlayerPawn = Cast<APlayerBase>(GetPawn()))
 	{
 		PlayerPawn->TurnTorchOff();
@@ -130,15 +143,6 @@ void APlayerControllerBase::FocusOnWidget() noexcept
 	SetInputMode(FInputModeUIOnly());
 }
 
-void APlayerControllerBase::PauseCalled() noexcept
-{
-	if (PauseWidget)
-	{
-		PauseWidget->SetVisibility(ESlateVisibility::Visible);
-	}
-	FocusOnWidget();
-}
-
 void APlayerControllerBase::FocusOnGame() noexcept
 {
 	if (HUDWidget)
@@ -147,6 +151,20 @@ void APlayerControllerBase::FocusOnGame() noexcept
 	}
 	SetInputMode(FInputModeGameOnly());
 	bShowMouseCursor = false;
+}
+
+void APlayerControllerBase::CreateGame() noexcept
+{
+
+}
+
+void APlayerControllerBase::PauseCalled() noexcept
+{
+	if (PauseWidget)
+	{
+		PauseWidget->SetVisibility(ESlateVisibility::Visible);
+	}
+	FocusOnWidget();
 }
 
 void APlayerControllerBase::EnterTheWinningArea() noexcept
@@ -164,6 +182,14 @@ void APlayerControllerBase::ExitTheWinningArea() noexcept
 	if (WinningAreaWidget)
 	{
 		WinningAreaWidget->SetVisibility(ESlateVisibility::Collapsed);
+	}
+}
+
+void APlayerControllerBase::UpdateFoundGamesList(const TArray<FOnlineSessionSearchResult>& GamesList)
+{
+	if (UMainMenuWidget* MainMenuWidgetCasted = Cast<UMainMenuWidget>(MainMenuWidget))
+	{
+		MainMenuWidgetCasted->UpdateFoundGamesList(GamesList);
 	}
 }
 
@@ -221,7 +247,6 @@ void APlayerControllerBase::Server_Shoot_Implementation()
 
 		if (AEnemyBase* EnemyHit = Cast<AEnemyBase>(Hit.GetActor()))
 		{
-			UE_LOG(LogTemp, Warning, TEXT("Enemy Hit"));
 			EnemyHit->ApplyDamage(GunDamage);
 		}
 		
