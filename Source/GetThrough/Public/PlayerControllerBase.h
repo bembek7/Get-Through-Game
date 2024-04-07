@@ -21,22 +21,19 @@ class GETTHROUGH_API APlayerControllerBase : public APlayerController, public IG
 public:
 	virtual void Tick(float DeltaTime) override;
 
-	void SetupInput(class UInputComponent* PlayerInputComponent) noexcept;
+	void SetupInput(class UInputComponent* PlayerInputComponent);
 
 	virtual FGenericTeamId GetGenericTeamId() const override;
 
-	void PlayerDied() noexcept;
+	void PlayerDied();
 
-	void FocusOnGame() noexcept;
-
-	UFUNCTION()
-	void CreateGame() noexcept;
+	void FocusOnGame();
 
 	UFUNCTION()
-	void EnterTheWinningArea() noexcept;
+	void EnterTheWinningArea();
 
 	UFUNCTION()
-	void ExitTheWinningArea() noexcept;
+	void ExitTheWinningArea();
 
 	void UpdateFoundGamesList(const TArray<FOnlineSessionSearchResult>& GamesList);
 
@@ -45,38 +42,38 @@ protected:
 
 private:
 	UFUNCTION(Category = "Input Response")
-	void Walk(const FInputActionValue& IAValue) noexcept;
+	void Walk(const FInputActionValue& IAValue);
 
 	UFUNCTION(Category = "Input Response")
-	void Look(const FInputActionValue& IAValue) noexcept;
+	void Look(const FInputActionValue& IAValue);
 
 	UFUNCTION(Category = "Input Response")
-	void HandleShootInput() noexcept;
+	void HandleShootInput();
 
 	UFUNCTION(Server, Reliable)
 	void Server_Shoot();
 
 	UFUNCTION(Category = "Input Response")
-	void ToggleCCTVView() noexcept;
+	void ToggleCCTVView();
 
 	UFUNCTION(Category = "Input Response")
-	void SwitchCCTV(const FInputActionValue& IAValue) noexcept;
+	void SwitchCCTV(const FInputActionValue& IAValue);
 
-	void SwitchCCTVForward() noexcept;
+	void SwitchCCTVForward();
 
-	void SwitchCCTVBackward() noexcept;
+	void SwitchCCTVBackward();
 
-	void FocusOnWidget() noexcept;
+	void FocusOnWidget();
 
-	void PauseCalled() noexcept;
+	void PauseCalled();
 
-	void PlayGunshotSound(const FVector& GunLocation) const noexcept;
+	void PlayGunshotSound(const FVector& GunLocation) const;
 
-	void PlayerWon() noexcept;
+	void PlayerWon();
 
-	float GetTimeLeftToWin() const noexcept;
+	float GetTimeLeftToWin() const;
 
-	void InitializeCommonWidget(UUserWidget*& WidgetToInitialize, const TSubclassOf<UUserWidget>& WidgetClass, ESlateVisibility InitialVisibility) noexcept; // Shorthand for initializing the widgets held by a pointer to UUserWidget
+	void InitializeCommonWidget(UUserWidget*& WidgetToInitialize, const TSubclassOf<UUserWidget>& WidgetClass, const ESlateVisibility InitialVisibility); // Shorthand for initializing the widgets held by a pointer to UUserWidget
 
 public:
 

@@ -16,65 +16,89 @@ void UMainMenuWidget::NativeConstruct()
 
 	FScriptDelegate QuitDelegate;
 	QuitDelegate.BindUFunction(this, FName("QuitGame"));
-	QuitButton->OnClicked.AddUnique(QuitDelegate);
+	if (QuitButton)
+	{
+		QuitButton->OnClicked.AddUnique(QuitDelegate);
+	}
 
 	FScriptDelegate OpenSettingsDelegate;
 	OpenSettingsDelegate.BindUFunction(this, FName("OpenSettings"));
-	SettingsButton->OnClicked.AddUnique(OpenSettingsDelegate);
+	if (SettingsButton)
+	{
+		SettingsButton->OnClicked.AddUnique(OpenSettingsDelegate);
+	}
 
 	FScriptDelegate CreateGameDelegate;
 	CreateGameDelegate.BindUFunction(GetGameInstance(), FName("StartOnlineGame"));
-	CreateGameButton->OnClicked.AddUnique(CreateGameDelegate);
+	if (CreateGameButton)
+	{
+		CreateGameButton->OnClicked.AddUnique(CreateGameDelegate);
+	}
 
 	FScriptDelegate FindGamesDelegate;
 	FindGamesDelegate.BindUFunction(this, FName("FindGames"));
-	FindGamesButton->OnClicked.AddUnique(FindGamesDelegate);
+	if (FindGamesButton)
+	{
+		FindGamesButton->OnClicked.AddUnique(FindGamesDelegate);
+	}
 
-	SettingsWidget->SetVisibility(ESlateVisibility::Collapsed);
+	if(SettingsWidget)
+	{
+		SettingsWidget->SetVisibility(ESlateVisibility::Collapsed);
+	}
 }
 
-void UMainMenuWidget::UpdateFoundGamesList(const TArray<FOnlineSessionSearchResult>& GamesList) noexcept
+void UMainMenuWidget::UpdateFoundGamesList(const TArray<FOnlineSessionSearchResult>& GamesList)
 {
-	FindGamesButton->SetIsEnabled(true);
-	UE_LOG(LogTemp, Warning, TEXT("Widget updates the list"));
-	FoundGames->ClearChildren();
-	for (const auto& SessionFound : GamesList)
+	if (FindGamesButton)
 	{
-		USessionFoundEntry* Entry = CreateWidget<USessionFoundEntry>(FoundGames, SessionEntryClass);
-		FoundGames->AddChild(Entry);
-		if(Entry)
+		FindGamesButton->SetIsEnabled(true);
+	}
+	if (FoundGames)
+	{
+		FoundGames->ClearChildren();
+		for (const auto& SessionFound : GamesList)
 		{
+			USessionFoundEntry* Entry = CreateWidget<USessionFoundEntry>(FoundGames, SessionEntryClass);
+			FoundGames->AddChild(Entry);
 			Entry->SetSessionValues(SessionFound.Session.OwningUserName);
 		}
 	}
 }
 
-void UMainMenuWidget::OpenSettings() noexcept
+void UMainMenuWidget::OpenSettings()
 {
-	MainButtons->SetVisibility(ESlateVisibility::Collapsed);
-	SettingsWidget->SetVisibility(ESlateVisibility::Visible);
+	if (MainButtons)
+	{
+		MainButtons->SetVisibility(ESlateVisibility::Collapsed);
+	}
+	if (SettingsWidget)
+	{
+		SettingsWidget->SetVisibility(ESlateVisibility::Visible);
+	}
 }
 
-void UMainMenuWidget::CreateGame() noexcept
+void UMainMenuWidget::CreateGame() const
 {
-	UNWGameInstance* NetworkGameInstace = Cast<UNWGameInstance>(GetGameInstance());
-	if (NetworkGameInstace)
+	if (UNWGameInstance* const NetworkGameInstace = Cast<UNWGameInstance>(GetGameInstance()))
 	{
 		NetworkGameInstace->StartOnlineGame();
 	}
 }
 
-void UMainMenuWidget::FindGames() noexcept
+void UMainMenuWidget::FindGames()
 {
-	FindGamesButton->SetIsEnabled(false);
-	UNWGameInstance* NetworkGameInstace = Cast<UNWGameInstance>(GetGameInstance());
-	if (NetworkGameInstace)
+	if (FindGamesButton)
+	{
+		FindGamesButton->SetIsEnabled(false);
+	}
+	if (UNWGameInstance* const NetworkGameInstace = Cast<UNWGameInstance>(GetGameInstance()))
 	{
 		NetworkGameInstace->FindOnlineGames();
 	}
 }
 
-void UMainMenuWidget::QuitGame() const noexcept
+void UMainMenuWidget::QuitGame() const
 {
 	UKismetSystemLibrary::QuitGame(GetWorld(), GetOwningPlayer(), EQuitPreference::Quit, false);
 }

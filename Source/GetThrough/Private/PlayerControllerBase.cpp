@@ -23,25 +23,6 @@ void APlayerControllerBase::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (IsLocalPlayerController())
-	{
-		InitializeCommonWidget(DeathWidget, DeathWidgetClass, ESlateVisibility::Collapsed);
-		InitializeCommonWidget(PauseWidget, PauseWidgetClass, ESlateVisibility::Collapsed);
-		InitializeCommonWidget(HUDWidget, HUDWidgetClass, ESlateVisibility::Collapsed);
-		InitializeCommonWidget(PlayerWonWidget, PlayerWonWidgetClass, ESlateVisibility::Collapsed);
-		
-		ESlateVisibility MainMenuVisibility = ESlateVisibility::Collapsed;
-		if (UGameplayStatics::GetCurrentLevelName(GetWorld()) == "MainMenu")
-		{
-			MainMenuVisibility = ESlateVisibility::Visible;
-		}
-		InitializeCommonWidget(MainMenuWidget, MainMenuWidgetClass, MainMenuVisibility);
-
-		WinningAreaWidget = CreateWidget<UWinningAreaWidget>(this, WinningAreaWidgetClass);
-		WinningAreaWidget->AddToPlayerScreen();
-		WinningAreaWidget->SetVisibility(ESlateVisibility::Collapsed);
-	}
-
 	if (ULocalPlayer* LocalPlayer = Cast<ULocalPlayer>(GetLocalPlayer()))
 	{
 		if (UEnhancedInputLocalPlayerSubsystem* InputSystem = LocalPlayer->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>())
@@ -52,9 +33,30 @@ void APlayerControllerBase::BeginPlay()
 			}
 		}
 	}
+
 	if (IsLocalPlayerController())
 	{
-		FocusOnWidget();
+		InitializeCommonWidget(DeathWidget, DeathWidgetClass, ESlateVisibility::Collapsed);
+		InitializeCommonWidget(PauseWidget, PauseWidgetClass, ESlateVisibility::Collapsed);
+		InitializeCommonWidget(HUDWidget, HUDWidgetClass, ESlateVisibility::Collapsed);
+		InitializeCommonWidget(PlayerWonWidget, PlayerWonWidgetClass, ESlateVisibility::Collapsed);
+
+		WinningAreaWidget = CreateWidget<UWinningAreaWidget>(this, WinningAreaWidgetClass);
+		WinningAreaWidget->AddToPlayerScreen();
+		WinningAreaWidget->SetVisibility(ESlateVisibility::Collapsed);
+
+		ESlateVisibility MainMenuVisibility = ESlateVisibility::Collapsed;
+		if (UGameplayStatics::GetCurrentLevelName(GetWorld()) == "MainMenu")
+		{
+			MainMenuVisibility = ESlateVisibility::Visible;
+			FocusOnWidget();
+		}
+		else
+		{
+			FocusOnGame();
+		}
+
+		InitializeCommonWidget(MainMenuWidget, MainMenuWidgetClass, MainMenuVisibility);
 	}
 }
 
@@ -67,7 +69,7 @@ void APlayerControllerBase::Tick(float DeltaTime)
 	}
 }
 
-void APlayerControllerBase::SetupInput(UInputComponent* PlayerInputComponent) noexcept
+void APlayerControllerBase::SetupInput(UInputComponent* PlayerInputComponent)
 {
 	if (UEnhancedInputComponent* PlayerEnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent))
 	{
@@ -99,7 +101,7 @@ void APlayerControllerBase::SetupInput(UInputComponent* PlayerInputComponent) no
 	}
 }
 
-void APlayerControllerBase::InitializeCommonWidget(UUserWidget*& WidgetToInitialize, const TSubclassOf<UUserWidget>& WidgetClass, ESlateVisibility InitialVisibility) noexcept
+void APlayerControllerBase::InitializeCommonWidget(UUserWidget*& WidgetToInitialize, const TSubclassOf<UUserWidget>& WidgetClass, const ESlateVisibility InitialVisibility)
 {
 	WidgetToInitialize = CreateWidget<UUserWidget>(this, WidgetClass);
 	WidgetToInitialize->AddToPlayerScreen();
@@ -111,7 +113,7 @@ FGenericTeamId APlayerControllerBase::GetGenericTeamId() const
 	return TeamId;
 }
 
-void APlayerControllerBase::PlayerDied() noexcept
+void APlayerControllerBase::PlayerDied()
 {
 	SetInputMode(FInputModeUIOnly());
 	bShowMouseCursor = true;
@@ -123,7 +125,7 @@ void APlayerControllerBase::PlayerDied() noexcept
 	{
 		PauseWidget->SetVisibility(ESlateVisibility::Collapsed);
 	}
-	if (APlayerBase* PlayerPawn = Cast<APlayerBase>(GetPawn()))
+	if (APlayerBase* const PlayerPawn = Cast<APlayerBase>(GetPawn()))
 	{
 		PlayerPawn->TurnTorchOff();
 	}
@@ -133,9 +135,9 @@ void APlayerControllerBase::PlayerDied() noexcept
 	}
 }
 
-void APlayerControllerBase::FocusOnWidget() noexcept
+void APlayerControllerBase::FocusOnWidget()
 {
-	if(HUDWidget)
+	if (HUDWidget)
 	{
 		HUDWidget->SetVisibility(ESlateVisibility::Collapsed);
 	}
@@ -143,7 +145,7 @@ void APlayerControllerBase::FocusOnWidget() noexcept
 	SetInputMode(FInputModeUIOnly());
 }
 
-void APlayerControllerBase::FocusOnGame() noexcept
+void APlayerControllerBase::FocusOnGame()
 {
 	if (HUDWidget)
 	{
@@ -153,12 +155,7 @@ void APlayerControllerBase::FocusOnGame() noexcept
 	bShowMouseCursor = false;
 }
 
-void APlayerControllerBase::CreateGame() noexcept
-{
-
-}
-
-void APlayerControllerBase::PauseCalled() noexcept
+void APlayerControllerBase::PauseCalled()
 {
 	if (PauseWidget)
 	{
@@ -167,7 +164,7 @@ void APlayerControllerBase::PauseCalled() noexcept
 	FocusOnWidget();
 }
 
-void APlayerControllerBase::EnterTheWinningArea() noexcept
+void APlayerControllerBase::EnterTheWinningArea()
 {
 	GetWorldTimerManager().SetTimer(WinningAreaTimerHandle, this, &APlayerControllerBase::PlayerWon, TimeToWin, false);
 	if (WinningAreaWidget)
@@ -176,7 +173,7 @@ void APlayerControllerBase::EnterTheWinningArea() noexcept
 	}
 }
 
-void APlayerControllerBase::ExitTheWinningArea() noexcept
+void APlayerControllerBase::ExitTheWinningArea()
 {
 	GetWorldTimerManager().ClearTimer(WinningAreaTimerHandle);
 	if (WinningAreaWidget)
@@ -187,40 +184,43 @@ void APlayerControllerBase::ExitTheWinningArea() noexcept
 
 void APlayerControllerBase::UpdateFoundGamesList(const TArray<FOnlineSessionSearchResult>& GamesList)
 {
-	if (UMainMenuWidget* MainMenuWidgetCasted = Cast<UMainMenuWidget>(MainMenuWidget))
+	if (UMainMenuWidget* const MainMenuWidgetCasted = Cast<UMainMenuWidget>(MainMenuWidget))
 	{
 		MainMenuWidgetCasted->UpdateFoundGamesList(GamesList);
 	}
 }
 
-float APlayerControllerBase::GetTimeLeftToWin() const noexcept
+float APlayerControllerBase::GetTimeLeftToWin() const
 {
 	const float TimeIn = GetWorldTimerManager().GetTimerElapsed(WinningAreaTimerHandle);
 	return TimeToWin - TimeIn;
 }
 
-void APlayerControllerBase::Walk(const FInputActionValue& IAValue) noexcept
+void APlayerControllerBase::Walk(const FInputActionValue& IAValue)
 {
 	const FVector2D MoveVector = IAValue.Get<FVector2D>();
-	if (APawn* PlayerPawn = GetPawn())
+	if (APawn* const PlayerPawn = GetPawn())
 	{
 		PlayerPawn->AddMovementInput(PlayerPawn->GetActorRightVector(), MoveVector.X);
 		PlayerPawn->AddMovementInput(PlayerPawn->GetActorForwardVector(), MoveVector.Y);
 	}
 }
 
-void APlayerControllerBase::Look(const FInputActionValue& IAValue) noexcept
+void APlayerControllerBase::Look(const FInputActionValue& IAValue)
 {
 	const FVector2D LookVector = IAValue.Get<FVector2D>();
-	GetPawn()->AddControllerYawInput(LookVector.X * MouseXSensitivity);
-	GetPawn()->AddControllerPitchInput(LookVector.Y * MouseYSensitivity * -1);
+	if (APawn* const PlayerPawn = GetPawn())
+	{
+		PlayerPawn->AddControllerYawInput(LookVector.X * MouseXSensitivity);
+		PlayerPawn->AddControllerPitchInput(LookVector.Y * MouseYSensitivity * -1);
+	}
 }
 
-void APlayerControllerBase::HandleShootInput() noexcept
+void APlayerControllerBase::HandleShootInput()
 {
 	Server_Shoot();
 
-	const APawn* PlayerPawn = GetPawn();
+	APawn* const PlayerPawn = GetPawn();
 	if (!HasAuthority() && PlayerPawn)
 	{
 		PlayGunshotSound(PlayerPawn->GetActorLocation());
@@ -229,12 +229,11 @@ void APlayerControllerBase::HandleShootInput() noexcept
 
 void APlayerControllerBase::Server_Shoot_Implementation()
 {
-	
-	if (const APlayerBase* PlayerPawn = Cast<APlayerBase>(GetPawn()))
+	if (APlayerBase* const PlayerPawn = Cast<APlayerBase>(GetPawn()))
 	{
 		FHitResult Hit;
 		const FVector GunLocation = PlayerPawn->GetShootingStartLocation();
-		const USceneComponent* PlayerCamera = Cast<USceneComponent>(PlayerPawn->GetComponentByClass(UCameraComponent::StaticClass()));
+		USceneComponent* const PlayerCamera = Cast<USceneComponent>(PlayerPawn->GetComponentByClass(UCameraComponent::StaticClass()));
 		const FVector CameraLocation = PlayerCamera->GetComponentLocation();
 		const FVector CameraForwardVector = PlayerCamera->GetForwardVector();
 		const FVector TraceEnd = CameraLocation + CameraForwardVector * 5000.f;
@@ -245,16 +244,16 @@ void APlayerControllerBase::Server_Shoot_Implementation()
 
 		GetWorld()->LineTraceSingleByChannel(Hit, CameraLocation, TraceEnd, ECollisionChannel::ECC_Camera, QueryParams);
 
-		if (AEnemyBase* EnemyHit = Cast<AEnemyBase>(Hit.GetActor()))
+		if (AEnemyBase* const EnemyHit = Cast<AEnemyBase>(Hit.GetActor()))
 		{
 			EnemyHit->ApplyDamage(GunDamage);
 		}
-		
+
 		PlayGunshotSound(PlayerPawn->GetActorLocation());
 	}
 }
 
-void APlayerControllerBase::ToggleCCTVView() noexcept
+void APlayerControllerBase::ToggleCCTVView()
 {
 	if (!bInCCTVView)
 	{
@@ -264,7 +263,10 @@ void APlayerControllerBase::ToggleCCTVView() noexcept
 		}
 		if (!CCTVs.IsEmpty())
 		{
-			SetViewTargetWithBlend(CCTVs[ViewedCCTVIndex]);
+			if(CCTVs[ViewedCCTVIndex])
+			{
+				SetViewTargetWithBlend(CCTVs[ViewedCCTVIndex]);
+			}
 			IgnoreMoveInput = true;
 			IgnoreLookInput = true;
 			bInCCTVView = true;
@@ -275,11 +277,14 @@ void APlayerControllerBase::ToggleCCTVView() noexcept
 		bInCCTVView = false;
 		IgnoreMoveInput = false;
 		IgnoreLookInput = false;
-		SetViewTargetWithBlend(GetPawn());
+		if (APawn* const PlayerPawn = GetPawn())
+		{
+			SetViewTargetWithBlend(PlayerPawn);
+		}
 	}
 }
 
-void APlayerControllerBase::SwitchCCTV(const FInputActionValue& IAValue) noexcept
+void APlayerControllerBase::SwitchCCTV(const FInputActionValue& IAValue)
 {
 	if (bInCCTVView)
 	{
@@ -295,37 +300,42 @@ void APlayerControllerBase::SwitchCCTV(const FInputActionValue& IAValue) noexcep
 	}
 }
 
-void APlayerControllerBase::SwitchCCTVForward() noexcept
+void APlayerControllerBase::SwitchCCTVForward()
 {
 	ViewedCCTVIndex++;
 	if (ViewedCCTVIndex == CCTVs.Num())
 	{
 		ViewedCCTVIndex = 0;
 	}
-	SetViewTargetWithBlend(CCTVs[ViewedCCTVIndex]);
+	if (CCTVs[ViewedCCTVIndex])
+	{
+		SetViewTargetWithBlend(CCTVs[ViewedCCTVIndex]);
+	}
 }
 
-void APlayerControllerBase::SwitchCCTVBackward() noexcept
+void APlayerControllerBase::SwitchCCTVBackward()
 {
 	ViewedCCTVIndex--;
 	if (ViewedCCTVIndex < 0)
 	{
 		ViewedCCTVIndex = CCTVs.Num() - 1;
 	}
-	SetViewTargetWithBlend(CCTVs[ViewedCCTVIndex]);
+	if (CCTVs[ViewedCCTVIndex])
+	{
+		SetViewTargetWithBlend(CCTVs[ViewedCCTVIndex]);
+	}
 }
 
-void APlayerControllerBase::PlayGunshotSound(const FVector& GunLocation) const noexcept
+void APlayerControllerBase::PlayGunshotSound(const FVector& GunLocation) const
 {
 	UGameplayStatics::PlaySoundAtLocation(GetWorld(), GunshotSound, GunLocation);
-	APawn* PlayerPawn = GetPawn();
-	if (PlayerPawn)
+	if (APawn* const PlayerPawn = GetPawn())
 	{
 		UAISense_Hearing::ReportNoiseEvent(GetWorld(), PlayerPawn->GetActorLocation(), 1.f, PlayerPawn, GunshotSoundRange, FName("Gunshot"));
 	}
 }
 
-void APlayerControllerBase::PlayerWon() noexcept
+void APlayerControllerBase::PlayerWon()
 {
 	if (WinningAreaWidget)
 	{

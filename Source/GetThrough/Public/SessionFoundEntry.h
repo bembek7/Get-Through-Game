@@ -6,13 +6,12 @@
 #include "Blueprint/UserWidget.h"
 #include "SessionFoundEntry.generated.h"
 
-
 class UBorder;
 class UHorizontalBox;
 class UTextBlock;
 class UButton;
 /**
- * 
+ *
  */
 UCLASS()
 class GETTHROUGH_API USessionFoundEntry : public UUserWidget
@@ -22,11 +21,11 @@ class GETTHROUGH_API USessionFoundEntry : public UUserWidget
 public:
 	virtual void NativeConstruct() override;
 
-	void SetSessionValues(const FString& FoundSessionName) noexcept;
+	void SetSessionValues(const FString& FoundSessionOwningUserName);
 
 private:
 	UFUNCTION()
-	void JoinGame() noexcept;
+	void JoinGame() const;
 
 protected:
 	UPROPERTY(EditAnywhere, meta = (BindWidget))
@@ -39,11 +38,8 @@ protected:
 	UTextBlock* SessionName;
 
 	UPROPERTY(EditAnywhere, meta = (BindWidget))
-	UTextBlock* SessionNrOfPlayers;
-
-	UPROPERTY(EditAnywhere, meta = (BindWidget))
-	UTextBlock* SessionPing;
-
-	UPROPERTY(EditAnywhere, meta = (BindWidget))
 	UButton* JoinButton;
+
+private:
+	FString SessionOwningUserName;
 };

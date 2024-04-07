@@ -22,22 +22,22 @@ class GETTHROUGH_API UMainMenuWidget : public UUserWidget
 public:
 	virtual void NativeConstruct() override;
 
-	void UpdateFoundGamesList(const TArray<FOnlineSessionSearchResult>& GamesList) noexcept;
+	void UpdateFoundGamesList(const TArray<FOnlineSessionSearchResult>& GamesList);
 
 protected:
 
 private:
 	UFUNCTION()
-	void OpenSettings() noexcept;
+	void OpenSettings();
 
 	UFUNCTION()
-	void CreateGame() noexcept;
+	void CreateGame() const;
 
 	UFUNCTION()
-	void FindGames() noexcept;
+	void FindGames();
 
 	UFUNCTION()
-	void QuitGame() const noexcept;
+	void QuitGame() const;
 
 public:
 

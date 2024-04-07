@@ -8,13 +8,13 @@
 #include "NWGameInstance.generated.h"
 
 /**
- * 
+ *
  */
 UCLASS()
 class GETTHROUGH_API UNWGameInstance : public UGameInstance
 {
 	GENERATED_BODY()
-	
+
 public:
 	UNWGameInstance(const FObjectInitializer& ObjectInitializer);
 
@@ -25,13 +25,13 @@ public:
 	void FindOnlineGames();
 
 	UFUNCTION(BlueprintCallable, Category = "Network|Test")
-	void JoinOnlineGame();
+	void JoinOnlineGame(const FString& ChosenSessionOwningUserName);
 
 	UFUNCTION(BlueprintCallable, Category = "Network|Test")
 	void DestroySessionAndLeaveGame();
 
 private:
-	bool HostSession(TSharedPtr<const FUniqueNetId> UserId, FName SessionName, bool bIsLAN, bool bIsPresence, int32 MaxNumPlayers);
+	bool HostSession(TSharedPtr<const FUniqueNetId> UserId, FName SessionName, bool bIsLAN, bool bIsPresence, uint32 MaxNumPlayers);
 
 	virtual void OnCreateSessionComplete(FName SessionName, bool bWasSuccessful);
 
