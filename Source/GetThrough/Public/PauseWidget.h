@@ -23,13 +23,13 @@ protected:
 
 private:
 	UFUNCTION()
-	void QuitGame() const noexcept;
+	void QuitGame() const;
 
 	UFUNCTION()
-	void OpenSettings() noexcept;
+	void OpenSettings();
 
 	UFUNCTION()
-	void Continue() noexcept;
+	void Continue();
 
 public:
 

@@ -17,7 +17,7 @@ class GETTHROUGH_API AEnemyControllerBase : public AAIController
 	GENERATED_BODY()
 
 public:
-	AEnemyControllerBase() noexcept;
+	AEnemyControllerBase();
 
 	virtual ETeamAttitude::Type GetTeamAttitudeTowards(const AActor& Other) const override;
 	virtual FGenericTeamId GetGenericTeamId() const override;
@@ -27,7 +27,7 @@ protected:
 
 private:
 	UFUNCTION()
-	void TargetPerceptionUpdated(AActor* Actor, const FAIStimulus& Stimulus) const noexcept;
+	void TargetPerceptionUpdated(AActor* const Actor, const FAIStimulus& Stimulus) const;
 
 public:
 

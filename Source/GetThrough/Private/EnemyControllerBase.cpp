@@ -1,7 +1,7 @@
 #include "EnemyControllerBase.h"
 #include "BehaviorTree/BlackboardComponent.h"
 
-AEnemyControllerBase::AEnemyControllerBase() noexcept
+AEnemyControllerBase::AEnemyControllerBase()
 {
 	AIPerception = CreateDefaultSubobject<UAIPerceptionComponent>(TEXT("AIPerception"));
 }
@@ -49,7 +49,7 @@ void AEnemyControllerBase::BeginPlay()
 	AIPerception->OnTargetPerceptionUpdated.AddUnique(TargetPereceptionUpdatedDelegate);
 }
 
-void AEnemyControllerBase::TargetPerceptionUpdated(AActor* Actor, const FAIStimulus& Stimulus) const noexcept
+void AEnemyControllerBase::TargetPerceptionUpdated(AActor* const Actor, const FAIStimulus& Stimulus) const
 {
 	if (Stimulus.WasSuccessfullySensed())
 	{

@@ -3,7 +3,7 @@
 #include "PlayerControllerBase.h"
 #include "PlayerBase.h"
 
-AWinningArea::AWinningArea() noexcept
+AWinningArea::AWinningArea()
 {
 	BoxCollider = CreateDefaultSubobject<UBoxComponent>(TEXT("Box Collider"));
 	BoxCollider->SetupAttachment(RootComponent);
@@ -22,24 +22,22 @@ void AWinningArea::BeginPlay()
 	BoxCollider->OnComponentEndOverlap.AddUnique(OnEndOverlapDelegate);
 }
 
-void AWinningArea::OnBoxBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) const noexcept
+void AWinningArea::OnBoxBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) const
 {
-	if (APlayerBase* PlayerPawn = Cast<APlayerBase>(OtherActor))
+	if (APlayerBase* const PlayerPawn = Cast<APlayerBase>(OtherActor))
 	{
-		APlayerControllerBase* PlayerController = Cast<APlayerControllerBase>(PlayerPawn->GetController());
-		if (PlayerController)
+		if (APlayerControllerBase* const PlayerController = Cast<APlayerControllerBase>(PlayerPawn->GetController()))
 		{
 			PlayerController->EnterTheWinningArea();
 		}
 	}
 }
 
-void AWinningArea::OnBoxEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex) const noexcept
+void AWinningArea::OnBoxEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex) const
 {
-	if (APlayerBase* PlayerPawn = Cast<APlayerBase>(OtherActor))
+	if (APlayerBase* const PlayerPawn = Cast<APlayerBase>(OtherActor))
 	{
-		APlayerControllerBase* PlayerController = Cast<APlayerControllerBase>(PlayerPawn->GetController());
-		if (PlayerController)
+		if (APlayerControllerBase* const PlayerController = Cast<APlayerControllerBase>(PlayerPawn->GetController()))
 		{
 			PlayerController->ExitTheWinningArea();
 		}

@@ -18,15 +18,14 @@ void AEnemyBase::BeginPlay()
 	bReplicates = true;
 }
 
-void AEnemyBase::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpuls, const FHitResult& Hit) const noexcept
+void AEnemyBase::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpuls, const FHitResult& Hit) const
 {
-	APlayerBase* PlayerPawn = Cast<APlayerBase>(OtherActor);
+	APlayerBase* const PlayerPawn = Cast<APlayerBase>(OtherActor);
 	if (PlayerPawn && !PlayerPawn->IsDead())
 	{
 		PlayerPawn->Die();
 	}
 }
-
 
 void AEnemyBase::OnHealthUpdate()
 {
@@ -38,17 +37,17 @@ void AEnemyBase::OnHealthUpdate()
 
 void AEnemyBase::SetHealth(const float NewHealth)
 {
-	if(HasAuthority())
+	if (HasAuthority())
 	{
 		Health = NewHealth;
 		OnHealthUpdate();
 	}
 }
 
-void AEnemyBase::Die() noexcept
+void AEnemyBase::Die()
 {
 	bIsDead = true;
-	if (AAIController* EnemyController = Cast<AAIController>(GetController()))
+	if (AAIController* const EnemyController = Cast<AAIController>(GetController()))
 	{
 		EnemyController->GetBrainComponent()->StopLogic("Controlled pawn died.");
 	}
@@ -62,7 +61,7 @@ void AEnemyBase::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
-void AEnemyBase::ApplyDamage(const float Damage) noexcept
+void AEnemyBase::ApplyDamage(const float Damage)
 {
 	if (HasAuthority())
 	{
@@ -73,7 +72,7 @@ void AEnemyBase::ApplyDamage(const float Damage) noexcept
 	}
 }
 
-bool AEnemyBase::IsDead() const noexcept
+bool AEnemyBase::IsDead() const
 {
 	return bIsDead;
 }

@@ -22,23 +22,32 @@ void UPauseWidget::NativeConstruct()
 	ContinueDelegate.BindUFunction(this, FName("Continue"));
 	ContinueButton->OnClicked.AddUnique(ContinueDelegate);
 
-	SettingsWidget->SetVisibility(ESlateVisibility::Collapsed);
+	if(SettingsWidget)
+	{
+		SettingsWidget->SetVisibility(ESlateVisibility::Collapsed);
+	}
 }
 
-void UPauseWidget::QuitGame() const noexcept
+void UPauseWidget::QuitGame() const
 {
 	UKismetSystemLibrary::QuitGame(GetWorld(), GetOwningPlayer(), EQuitPreference::Quit, false);
 }
 
-void UPauseWidget::OpenSettings() noexcept
+void UPauseWidget::OpenSettings()
 {
-	MainButtons->SetVisibility(ESlateVisibility::Collapsed);
-	SettingsWidget->SetVisibility(ESlateVisibility::Visible);
+	if (MainButtons)
+	{
+		MainButtons->SetVisibility(ESlateVisibility::Collapsed);
+	}
+	if (SettingsWidget)
+	{
+		SettingsWidget->SetVisibility(ESlateVisibility::Visible);
+	}
 }
 
-void UPauseWidget::Continue() noexcept
+void UPauseWidget::Continue()
 {
-	if (APlayerControllerBase* OwningPlayer = Cast<APlayerControllerBase>(GetOwningPlayer()))
+	if (APlayerControllerBase* const OwningPlayer = Cast<APlayerControllerBase>(GetOwningPlayer()))
 	{
 		OwningPlayer->FocusOnGame();
 	}

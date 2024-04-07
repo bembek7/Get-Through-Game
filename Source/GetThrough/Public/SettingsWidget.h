@@ -23,25 +23,25 @@ protected:
 
 private:
 	UFUNCTION()
-	void ChangeResolution() const noexcept;
+	void ChangeResolution() const;
 
 	UFUNCTION()
-	void ChangeWindowMode() const noexcept;
+	void ChangeWindowMode() const;
 
 	UFUNCTION()
-	void ChangeFrameRate() const noexcept;
+	void ChangeFrameRate() const;
 
 	UFUNCTION()
-	void ChangeVolume() const noexcept;
+	void ChangeVolume() const;
 
 	UFUNCTION()
-	void Close() noexcept;
+	void Close();
 
 	UFUNCTION()
-	void SaveSettings() noexcept;
+	void SaveSettings();
 
 	UFUNCTION()
-	void LoadSettings() noexcept;
+	void LoadSettings();
 
 public:
 

@@ -8,7 +8,7 @@
 #include "Net/UnrealNetwork.h"
 #include "Engine/Engine.h"
 
-APlayerBase::APlayerBase() noexcept
+APlayerBase::APlayerBase()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
@@ -48,21 +48,21 @@ void APlayerBase::Tick(float DeltaTime)
 void APlayerBase::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
-	if (APlayerControllerBase* PlayerController = Cast<APlayerControllerBase>(GetController()))
+	if (APlayerControllerBase* const PlayerController = Cast<APlayerControllerBase>(GetController()))
 	{
 		PlayerController->SetupInput(PlayerInputComponent);
 	}
 }
 
-FVector APlayerBase::GetShootingStartLocation() const noexcept
+FVector APlayerBase::GetShootingStartLocation() const
 {
 	return Gun->GetSocketLocation(FName("Muzzle"));
 }
 
-void APlayerBase::Die() noexcept
+void APlayerBase::Die()
 {
 	bIsDead = true;
-	if (APlayerControllerBase* PlayerController = Cast<APlayerControllerBase>(GetController()))
+	if (APlayerControllerBase* const PlayerController = Cast<APlayerControllerBase>(GetController()))
 	{
 		PlayerController->PlayerDied();
 	}
@@ -70,17 +70,17 @@ void APlayerBase::Die() noexcept
 	bUseControllerRotationYaw = false;
 }
 
-void APlayerBase::TurnTorchOff() noexcept
+void APlayerBase::TurnTorchOff()
 {
 	Torch->SetVisibility(false);
 }
 
-bool APlayerBase::IsDead() const noexcept
+bool APlayerBase::IsDead() const
 {
 	return bIsDead;
 }
 
-float APlayerBase::CalculateAimPitch() const noexcept
+float APlayerBase::CalculateAimPitch() const
 {
 	const float BaseAimRotation = GetBaseAimRotation().Pitch;
 	return (BaseAimRotation <= 90) ? BaseAimRotation : BaseAimRotation - 360;

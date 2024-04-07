@@ -18,21 +18,21 @@ class GETTHROUGH_API APlayerBase : public ACharacter
 	GENERATED_BODY()
 
 public:
-	APlayerBase() noexcept;
+	APlayerBase();
 
 	virtual void Tick(float DeltaTime) override;
 
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-	FVector GetShootingStartLocation() const noexcept;
+	FVector GetShootingStartLocation() const;
 
-	void Die() noexcept;
+	void Die();
 
-	void TurnTorchOff() noexcept;
+	void TurnTorchOff();
 
-	bool IsDead() const noexcept;
+	bool IsDead() const;
 
-	float CalculateAimPitch() const noexcept;
+	float CalculateAimPitch() const;
 
 	void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 

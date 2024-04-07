@@ -23,10 +23,10 @@ protected:
 
 private:
 	UFUNCTION()
-	void QuitGame() const noexcept;
+	void QuitGame() const;
 
 	UFUNCTION()
-	void PlayAgain() const noexcept;
+	void PlayAgain() const;
 
 public:
 

@@ -3,9 +3,12 @@
 #include "WinningAreaWidget.h"
 #include "Components/TextBlock.h"
 
-void UWinningAreaWidget::UpdateCounter(const float TimeLeft) const noexcept
+void UWinningAreaWidget::UpdateCounter(const float TimeLeft) const
 {
 	const int TimeLeftCeiled = FMath::CeilToInt32(TimeLeft);
 	const FText TextToDisplay = FText::FromString(FString::Printf(TEXT("Survive for: %d"), TimeLeftCeiled));
-	Counter->SetText(TextToDisplay);
+	if(Counter)
+	{
+		Counter->SetText(TextToDisplay);
+	}
 }

@@ -17,7 +17,7 @@ class GETTHROUGH_API UWinningAreaWidget : public UUserWidget
 	GENERATED_BODY()
 
 public:
-	void UpdateCounter(const float TimeLeft) const noexcept;
+	void UpdateCounter(const float TimeLeft) const;
 
 protected:
 

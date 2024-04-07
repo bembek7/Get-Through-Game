@@ -18,12 +18,12 @@ void UDeathWidget::NativeConstruct()
 	PlayAgainButton->OnClicked.AddUnique(PlayAgainDelegate);
 }
 
-void UDeathWidget::QuitGame() const noexcept
+void UDeathWidget::QuitGame() const
 {
 	UKismetSystemLibrary::QuitGame(GetWorld(), GetOwningPlayer(), EQuitPreference::Quit, false);
 }
 
-void UDeathWidget::PlayAgain() const noexcept
+void UDeathWidget::PlayAgain() const
 {
 	UGameplayStatics::OpenLevel(GetWorld(), FName("Main"), false);
 }

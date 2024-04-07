@@ -57,30 +57,30 @@ void USettingsWidget::NativeConstruct()
 	OnNativeVisibilityChanged.AddUFunction(this, FName("LoadSettings"));
 }
 
-void USettingsWidget::ChangeResolution() const noexcept
+void USettingsWidget::ChangeResolution() const
 {
 	FString ResolutionPicked = Resolution->GetSelectedOption();
 	GameSettings->SetScreenResolution(*ResolutionMap.Find(ResolutionPicked));
 }
 
-void USettingsWidget::ChangeWindowMode() const noexcept
+void USettingsWidget::ChangeWindowMode() const
 {
 	FString WindowModePicked = WindowMode->GetSelectedOption();
 	GameSettings->SetFullscreenMode(*WindowModeMap.Find(WindowModePicked));
 }
 
-void USettingsWidget::ChangeFrameRate() const noexcept
+void USettingsWidget::ChangeFrameRate() const
 {
 	FString FrameRatePicked = FrameRate->GetSelectedOption();
 	GameSettings->SetFrameRateLimit(*FrameRateMap.Find(FrameRatePicked));
 }
 
-void USettingsWidget::ChangeVolume() const noexcept
+void USettingsWidget::ChangeVolume() const
 {
 	UGameplayStatics::SetSoundMixClassOverride(GetWorld(), MasterSoundMix, MasterSoundClass, Volume->GetValue());
 }
 
-void USettingsWidget::Close() noexcept
+void USettingsWidget::Close()
 {
 	for (auto Widget : GetParent()->GetAllChildren())
 	{
@@ -89,7 +89,7 @@ void USettingsWidget::Close() noexcept
 	SetVisibility(ESlateVisibility::Collapsed);
 }
 
-void USettingsWidget::SaveSettings() noexcept
+void USettingsWidget::SaveSettings()
 {
 	GameSettings->ApplySettings(true);
 	USaveGameBase* Save = Cast<USaveGameBase>(UGameplayStatics::LoadGameFromSlot(USaveGameBase::SaveSlotName, USaveGameBase::SaveIndex));
@@ -106,7 +106,7 @@ void USettingsWidget::SaveSettings() noexcept
 	Close();
 }
 
-void USettingsWidget::LoadSettings() noexcept
+void USettingsWidget::LoadSettings()
 {
 	if (GetVisibility() == ESlateVisibility::Visible)
 	{
