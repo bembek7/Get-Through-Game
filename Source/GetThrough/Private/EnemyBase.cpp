@@ -27,20 +27,20 @@ void AEnemyBase::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UP
 	}
 }
 
-void AEnemyBase::OnHealthUpdate()
-{
-	if (Health <= 0)
-	{
-		Die();
-	}
-}
-
 void AEnemyBase::SetHealth(const float NewHealth)
 {
 	if (HasAuthority())
 	{
-		Health = NewHealth;
+		CurrentHealth = NewHealth;
 		OnHealthUpdate();
+	}
+}
+
+void AEnemyBase::OnHealthUpdate()
+{
+	if (CurrentHealth <= 0)
+	{
+		Die();
 	}
 }
 
@@ -67,7 +67,7 @@ void AEnemyBase::ApplyDamage(const float Damage)
 	{
 		if (!bIsDead)
 		{
-			SetHealth(Health - Damage);
+			SetHealth(CurrentHealth - Damage);
 		}
 	}
 }
@@ -81,8 +81,6 @@ void AEnemyBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifeti
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	DOREPLIFETIME(AEnemyBase, Health);
-	DOREPLIFETIME(AEnemyBase, ChaseSpeed);
-	DOREPLIFETIME(AEnemyBase, RoamSpeed);
+	DOREPLIFETIME(AEnemyBase, CurrentHealth);
 	DOREPLIFETIME(AEnemyBase, bIsDead);
 }

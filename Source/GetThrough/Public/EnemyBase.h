@@ -39,13 +39,7 @@ public:
 
 protected:
 	UPROPERTY(Replicated)
-	float Health = 100.f;
-
-	UPROPERTY(Replicated, BlueprintReadWrite)
-	float ChaseSpeed = 600.f;
-
-	UPROPERTY(Replicated, BlueprintReadWrite)
-	float RoamSpeed = 50.f;
+	float CurrentHealth = 100.f;
 
 private:
 	UPROPERTY(Replicated)
