@@ -24,7 +24,7 @@ public:
 
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-	FVector GetShootingStartLocation() const;
+	FVector GetShotBeamStartLocation() const;
 
 	void Die();
 
@@ -37,6 +37,15 @@ public:
 	UFUNCTION(BlueprintCallable)
 	float GetAimPitch() const;
 
+	FVector GetShootingTraceStartPointLocation() const;
+	FVector GetShootingDirection() const;
+
+	UFUNCTION(NetMulticast, Reliable)
+	void NetMulticast_PlayGunshotSound();
+
+	UFUNCTION(NetMulticast, Reliable)
+	void NetMulticast_DrawBulletTrace(const FVector& BeamStart, const FVector& BeamDirection) const;
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -46,6 +55,15 @@ public:
 
 protected:
 	UPROPERTY(EditDefaultsOnly)
+	USoundBase* GunshotSound;
+
+	UPROPERTY(EditDefaultsOnly)
+	float GunshotSoundRange = 2000.f;
+
+	UPROPERTY(EditDefaultsOnly)
+	class UNiagaraSystem* BulletTraceSystem;
+
+	UPROPERTY(EditDefaultsOnly)
 	UAIPerceptionStimuliSourceComponent* AIPerceptionStimuliSource;
 
 	UPROPERTY(EditDefaultsOnly)
@@ -53,6 +71,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly)
 	USkeletalMeshComponent* Gun;
+
+	UPROPERTY(EditDefaultsOnly)
+	USceneComponent* ShootingTracesStartPoint;
 
 	UPROPERTY(EditDefaultsOnly)
 	UCameraComponent* Camera;

@@ -51,7 +51,7 @@ private:
 	void HandleShootInput();
 
 	UFUNCTION(Server, Reliable)
-	void Server_Shoot();
+	void Server_Shoot() const;
 
 	UFUNCTION(Category = "Input Response")
 	void ToggleCCTVView();
@@ -67,7 +67,7 @@ private:
 
 	void PauseCalled();
 
-	void PlayGunshotSound(const FVector& GunLocation) const;
+	FHitResult ShootLineTrace() const;
 
 	void PlayerWon();
 
@@ -101,9 +101,6 @@ protected:
 	UInputAction* IASwitchCCTV;
 
 	UPROPERTY(EditDefaultsOnly)
-	USoundBase* GunshotSound;
-
-	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<UUserWidget>DeathWidgetClass;
 
 	UPROPERTY(EditDefaultsOnly)
@@ -126,9 +123,6 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly)
 	float GunDamage = 35.f;
-
-	UPROPERTY(EditDefaultsOnly)
-	float GunshotSoundRange = 2000.f;
 
 	UPROPERTY(EditDefaultsOnly)
 	float MouseXSensitivity = 1.f;

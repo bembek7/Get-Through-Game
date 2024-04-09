@@ -32,7 +32,7 @@ void UNWGameInstance::JoinOnlineGame(const FString& ChosenSessionOwningUserName)
 {
 	ULocalPlayer* const Player = GetFirstGamePlayer();
 
-	for (const auto& SearchResult: SessionSearch->SearchResults)
+	for (const auto& SearchResult : SessionSearch->SearchResults)
 	{
 		if (SearchResult.Session.OwningUserId != Player->GetPreferredUniqueNetId() && SearchResult.Session.OwningUserName == ChosenSessionOwningUserName)
 		{

@@ -10,7 +10,6 @@
 #include "Kismet/GameplayStatics.h"
 #include "Blueprint/UserWidget.h"
 #include "EnemyBase.h"
-#include "Perception/AISense_Hearing.h"
 #include "Camera/CameraComponent.h"
 #include "SaveGameBase.h"
 #include "WinningAreaWidget.h"
@@ -216,40 +215,43 @@ void APlayerControllerBase::Look(const FInputActionValue& IAValue)
 	}
 }
 
+FHitResult APlayerControllerBase::ShootLineTrace() const
+{
+	FHitResult Hit;
+	if (APlayerBase* const PlayerPawn = Cast<APlayerBase>(GetPawn()))
+	{
+		const FVector TraceStart = PlayerPawn->GetShootingTraceStartPointLocation();
+		const FVector ShootingDirection = PlayerPawn->GetShootingDirection();
+		const FVector TraceEnd = TraceStart + ShootingDirection * 5000.f;
+
+		FCollisionQueryParams QueryParams;
+		QueryParams.AddIgnoredActor(PlayerPawn);
+
+		GetWorld()->LineTraceSingleByChannel(Hit, TraceStart, TraceEnd, ECollisionChannel::ECC_Camera, QueryParams);
+	}
+
+	return Hit;
+}
+
 void APlayerControllerBase::HandleShootInput()
 {
 	Server_Shoot();
-
-	APawn* const PlayerPawn = GetPawn();
-	if (!HasAuthority() && PlayerPawn)
-	{
-		PlayGunshotSound(PlayerPawn->GetActorLocation());
-	}
 }
 
-void APlayerControllerBase::Server_Shoot_Implementation()
+void APlayerControllerBase::Server_Shoot_Implementation() const
 {
+	const FHitResult Hit = ShootLineTrace();
+	if (AEnemyBase* const EnemyHit = Cast<AEnemyBase>(Hit.GetActor()))
+	{
+		EnemyHit->ApplyDamage(GunDamage);
+	}
+
 	if (APlayerBase* const PlayerPawn = Cast<APlayerBase>(GetPawn()))
 	{
-		FHitResult Hit;
-		const FVector GunLocation = PlayerPawn->GetShootingStartLocation();
-		USceneComponent* const PlayerCamera = Cast<USceneComponent>(PlayerPawn->GetComponentByClass(UCameraComponent::StaticClass()));
-		const FVector CameraLocation = PlayerCamera->GetComponentLocation();
-		const FVector CameraForwardVector = PlayerCamera->GetForwardVector();
-		const FVector TraceEnd = CameraLocation + CameraForwardVector * 5000.f;
-
-		FCollisionQueryParams QueryParams;
-
-		QueryParams.AddIgnoredActor(PlayerPawn);
-
-		GetWorld()->LineTraceSingleByChannel(Hit, CameraLocation, TraceEnd, ECollisionChannel::ECC_Camera, QueryParams);
-
-		if (AEnemyBase* const EnemyHit = Cast<AEnemyBase>(Hit.GetActor()))
-		{
-			EnemyHit->ApplyDamage(GunDamage);
-		}
-
-		PlayGunshotSound(PlayerPawn->GetActorLocation());
+		const FVector GunLocation = PlayerPawn->GetShotBeamStartLocation();
+		const FVector TraceEnd = (Hit.bBlockingHit) ? Hit.ImpactPoint : Hit.TraceEnd;
+		PlayerPawn->NetMulticast_DrawBulletTrace(GunLocation, TraceEnd - GunLocation);
+		PlayerPawn->NetMulticast_PlayGunshotSound();
 	}
 }
 
@@ -263,7 +265,7 @@ void APlayerControllerBase::ToggleCCTVView()
 		}
 		if (!CCTVs.IsEmpty())
 		{
-			if(CCTVs[ViewedCCTVIndex])
+			if (CCTVs[ViewedCCTVIndex])
 			{
 				SetViewTargetWithBlend(CCTVs[ViewedCCTVIndex]);
 			}
@@ -323,15 +325,6 @@ void APlayerControllerBase::SwitchCCTVBackward()
 	if (CCTVs[ViewedCCTVIndex])
 	{
 		SetViewTargetWithBlend(CCTVs[ViewedCCTVIndex]);
-	}
-}
-
-void APlayerControllerBase::PlayGunshotSound(const FVector& GunLocation) const
-{
-	UGameplayStatics::PlaySoundAtLocation(GetWorld(), GunshotSound, GunLocation);
-	if (APawn* const PlayerPawn = GetPawn())
-	{
-		UAISense_Hearing::ReportNoiseEvent(GetWorld(), PlayerPawn->GetActorLocation(), 1.f, PlayerPawn, GunshotSoundRange, FName("Gunshot"));
 	}
 }
 

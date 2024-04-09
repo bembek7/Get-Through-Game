@@ -7,6 +7,10 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Net/UnrealNetwork.h"
 #include "Engine/Engine.h"
+#include "NiagaraFunctionLibrary.h"
+#include "NiagaraComponent.h"
+#include "Kismet/GameplayStatics.h"
+#include "Perception/AISense_Hearing.h"
 
 APlayerBase::APlayerBase()
 {
@@ -51,7 +55,6 @@ void APlayerBase::BeginPlay()
 	}
 }
 
-
 void APlayerBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
@@ -66,7 +69,7 @@ void APlayerBase::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	}
 }
 
-FVector APlayerBase::GetShootingStartLocation() const
+FVector APlayerBase::GetShotBeamStartLocation() const
 {
 	return Gun->GetSocketLocation(FName("Muzzle"));
 }
@@ -100,4 +103,37 @@ void APlayerBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifet
 float APlayerBase::GetAimPitch() const
 {
 	return Camera->GetComponentRotation().Pitch;
+}
+
+FVector APlayerBase::GetShootingTraceStartPointLocation() const
+{
+	if (Camera)
+	{
+		return Camera->GetComponentLocation();
+	}
+	return FVector();
+}
+
+FVector APlayerBase::GetShootingDirection() const
+{
+	if (Camera)
+	{
+		return Camera->GetForwardVector();
+	}
+	return FVector();
+}
+
+void APlayerBase::NetMulticast_PlayGunshotSound_Implementation()
+{
+	if (GunshotSound)
+	{
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), GunshotSound, GetShotBeamStartLocation());
+	}
+	UAISense_Hearing::ReportNoiseEvent(GetWorld(), GetActorLocation(), 1.f, this, GunshotSoundRange, FName("Gunshot"));
+}
+
+void APlayerBase::NetMulticast_DrawBulletTrace_Implementation(const FVector& BeamStart, const FVector& BeamDirection) const
+{
+	UNiagaraComponent* const BulletTraceEffect = UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), BulletTraceSystem, BeamStart);
+	BulletTraceEffect->SetVectorParameter(FName("BeamEnd"), BeamDirection);
 }
