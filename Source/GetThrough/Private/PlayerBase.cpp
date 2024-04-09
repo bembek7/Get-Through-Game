@@ -34,15 +34,27 @@ APlayerBase::APlayerBase()
 void APlayerBase::BeginPlay()
 {
 	Super::BeginPlay();
+
+	if (IsLocallyControlled())
+	{
+		if (SpringArm)
+		{
+			SpringArm->bUsePawnControlRotation = false;
+		}
+	}
+	else
+	{
+		if (SpringArm)
+		{
+			SpringArm->bUsePawnControlRotation = true;
+		}
+	}
 }
+
 
 void APlayerBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	if (HasAuthority())
-	{
-		AimPitch = CalculateAimPitch();
-	}
 }
 
 void APlayerBase::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -80,15 +92,12 @@ bool APlayerBase::IsDead() const
 	return bIsDead;
 }
 
-float APlayerBase::CalculateAimPitch() const
-{
-	const float BaseAimRotation = GetBaseAimRotation().Pitch;
-	return (BaseAimRotation <= 90) ? BaseAimRotation : BaseAimRotation - 360;
-}
-
 void APlayerBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+}
 
-	DOREPLIFETIME(APlayerBase, AimPitch);
+float APlayerBase::GetAimPitch() const
+{
+	return Camera->GetComponentRotation().Pitch;
 }

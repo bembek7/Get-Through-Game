@@ -32,9 +32,10 @@ public:
 
 	bool IsDead() const;
 
-	float CalculateAimPitch() const;
-
 	void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
+	UFUNCTION(BlueprintCallable)
+	float GetAimPitch() const;
 
 protected:
 	virtual void BeginPlay() override;
@@ -44,9 +45,6 @@ private:
 public:
 
 protected:
-	UPROPERTY(Replicated, BlueprintReadOnly)
-	float AimPitch = 0.f;
-
 	UPROPERTY(EditDefaultsOnly)
 	UAIPerceptionStimuliSourceComponent* AIPerceptionStimuliSource;
 

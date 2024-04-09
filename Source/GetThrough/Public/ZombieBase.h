@@ -14,11 +14,11 @@ struct FZombieType
 	UPROPERTY()
 	TSubclassOf<UAnimInstance>AnimationBlueprint;
 	UPROPERTY(BlueprintReadOnly)
-	float RoamSpeed;
+	float RoamSpeed = 200.f;
 	UPROPERTY(BlueprintReadOnly)
-	float ChaseSpeed;
+	float ChaseSpeed = 600.f;
 	UPROPERTY()
-	float MaxHealth;
+	float MaxHealth = 100.f;
 };
 /**
  * 
