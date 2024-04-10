@@ -21,7 +21,7 @@ struct FZombieType
 	float MaxHealth = 100.f;
 };
 /**
- * 
+ *
  */
 UCLASS()
 class GETTHROUGH_API AZombieBase : public AEnemyBase
@@ -41,6 +41,9 @@ private:
 	void OnRep_ZombieType();
 
 	void OnZombieTypeChanges();
+
+	UFUNCTION()
+	void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpuls, const FHitResult& Hit) const;
 
 	FZombieType PickRandomZombieType() const;
 

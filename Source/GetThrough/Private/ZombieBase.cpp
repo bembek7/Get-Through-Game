@@ -1,20 +1,33 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "ZombieBase.h"
 #include "Net/UnrealNetwork.h"
 #include "Kismet/KismetMathLibrary.h"
-
+#include "Components/CapsuleComponent.h"
+#include "PlayerBase.h"
 
 void AZombieBase::BeginPlay()
 {
 	Super::BeginPlay();
 
 	GetMesh()->SetIsReplicated(true);
-	if(HasAuthority())
+	if (HasAuthority())
 	{
 		ZombieType = PickRandomZombieType();
 		OnZombieTypeChanges();
+	}
+
+	FScriptDelegate OnHitDelegate;
+	OnHitDelegate.BindUFunction(this, FName("OnHit"));
+	GetCapsuleComponent()->OnComponentHit.AddUnique(OnHitDelegate);
+}
+
+void AZombieBase::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpuls, const FHitResult& Hit) const
+{
+	APlayerBase* const PlayerPawn = Cast<APlayerBase>(OtherActor);
+	if (PlayerPawn && !PlayerPawn->IsDead())
+	{
+		PlayerPawn->Die();
 	}
 }
 

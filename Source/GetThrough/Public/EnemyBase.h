@@ -24,21 +24,21 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
-	UFUNCTION()
-	void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpuls, const FHitResult& Hit) const;
-
 	void OnHealthUpdate();
 
 	UFUNCTION(BlueprintCallable)
 	void SetHealth(const float NewHealth);
 
 private:
+	UFUNCTION()
+	void OnRep_CurrentHealth();
+
 	void Die();
 
 public:
 
 protected:
-	UPROPERTY(Replicated)
+	UPROPERTY(ReplicatedUsing = OnRep_CurrentHealth)
 	float CurrentHealth = 100.f;
 
 private:

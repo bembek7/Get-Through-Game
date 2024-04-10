@@ -3,28 +3,16 @@
 #include "EnemyBase.h"
 #include "AIController.h"
 #include "BrainComponent.h"
-#include "PlayerBase.h"
 #include "Components/CapsuleComponent.h"
 #include "Net/UnrealNetwork.h"
 #include "Engine/Engine.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 void AEnemyBase::BeginPlay()
 {
 	Super::BeginPlay();
-	FScriptDelegate OnHitDelegate;
-	OnHitDelegate.BindUFunction(this, FName("OnHit"));
-	GetCapsuleComponent()->OnComponentHit.AddUnique(OnHitDelegate);
 
 	bReplicates = true;
-}
-
-void AEnemyBase::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpuls, const FHitResult& Hit) const
-{
-	APlayerBase* const PlayerPawn = Cast<APlayerBase>(OtherActor);
-	if (PlayerPawn && !PlayerPawn->IsDead())
-	{
-		PlayerPawn->Die();
-	}
 }
 
 void AEnemyBase::SetHealth(const float NewHealth)
@@ -44,6 +32,11 @@ void AEnemyBase::OnHealthUpdate()
 	}
 }
 
+void AEnemyBase::OnRep_CurrentHealth()
+{
+	OnHealthUpdate();
+}
+
 void AEnemyBase::Die()
 {
 	bIsDead = true;
@@ -51,9 +44,8 @@ void AEnemyBase::Die()
 	{
 		EnemyController->GetBrainComponent()->StopLogic("Controlled pawn died.");
 	}
+	GetCharacterMovement()->DisableMovement();
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	GetCapsuleComponent()->SetEnableGravity(false);
-	GetMesh()->SetEnableGravity(false);
 }
 
 void AEnemyBase::Tick(float DeltaTime)
