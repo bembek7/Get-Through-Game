@@ -81,6 +81,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly)
 	USpringArmComponent* SpringArm;
 
+	UPROPERTY(EditDefaultsOnly)
+	USpringArmComponent* SpringArmForCollision;
+
 private:
 	bool bIsDead = false;
 };

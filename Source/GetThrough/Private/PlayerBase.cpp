@@ -18,8 +18,11 @@ APlayerBase::APlayerBase()
 
 	AIPerceptionStimuliSource = CreateDefaultSubobject<UAIPerceptionStimuliSourceComponent>(TEXT("AIPerceptionStimuliSource"));
 
+	SpringArmForCollision = CreateDefaultSubobject<USpringArmComponent>(TEXT("Spring Arm For Collision"));
+	SpringArmForCollision->SetupAttachment(GetCapsuleComponent());
+
 	SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("Spring Arm"));
-	SpringArm->SetupAttachment(GetCapsuleComponent());
+	SpringArm->SetupAttachment(SpringArmForCollision);
 
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	Camera->SetupAttachment(SpringArm);
