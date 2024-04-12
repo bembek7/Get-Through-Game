@@ -54,5 +54,6 @@ void AEnemyControllerBase::TargetPerceptionUpdated(AActor* const Actor, const FA
 	if (Stimulus.WasSuccessfullySensed())
 	{
 		EnemyBlackboard->SetValueAsObject(FName("Player"), Actor);
+		// TODO Check if it's closer than current value
 	}
 }

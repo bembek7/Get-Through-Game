@@ -4,15 +4,14 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
-#include "DeathWidget.generated.h"
+#include "SpectatorWidget.generated.h"
 
 class UButton;
-
 /**
- *
+ * 
  */
 UCLASS()
-class GETTHROUGH_API UDeathWidget : public UUserWidget
+class GETTHROUGH_API USpectatorWidget : public UUserWidget
 {
 	GENERATED_BODY()
 
@@ -25,20 +24,14 @@ private:
 	UFUNCTION()
 	void QuitGame() const;
 
-	UFUNCTION()
-	void Spectate();
-
-	UFUNCTION()
-	void VisibilityChanged();
-
-public:
-
 protected:
-	UPROPERTY(EditAnywhere, meta = (BindWidget))
-	UButton* SpectateButton;
-
 	UPROPERTY(EditAnywhere, meta = (BindWidget))
 	UButton* QuitButton;
 
-	FTimerHandle EnableSpectateButtonTimer;
+	UPROPERTY(EditAnywhere, meta = (BindWidget))
+	UButton* ForwardButton;
+
+	UPROPERTY(EditAnywhere, meta = (BindWidget))
+	UButton* BackwardButton;
+
 };

@@ -39,6 +39,8 @@ void APlayerControllerBase::BeginPlay()
 		InitializeCommonWidget(PauseWidget, PauseWidgetClass, ESlateVisibility::Collapsed);
 		InitializeCommonWidget(HUDWidget, HUDWidgetClass, ESlateVisibility::Collapsed);
 		InitializeCommonWidget(PlayerWonWidget, PlayerWonWidgetClass, ESlateVisibility::Collapsed);
+		InitializeCommonWidget(SpectatorWidget, SpectatorWidgetClass, ESlateVisibility::Collapsed);
+		InitializeCommonWidget(GameOverWidget, GameOverWidgetClass, ESlateVisibility::Collapsed);
 
 		WinningAreaWidget = CreateWidget<UWinningAreaWidget>(this, WinningAreaWidgetClass);
 		WinningAreaWidget->AddToPlayerScreen();
@@ -107,12 +109,30 @@ void APlayerControllerBase::InitializeCommonWidget(UUserWidget*& WidgetToInitial
 	WidgetToInitialize->SetVisibility(InitialVisibility);
 }
 
+TArray<AActor*> APlayerControllerBase::GetPlayersToSpectate() const
+{
+	TArray<AActor*>AllPlayers;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APlayerBase::StaticClass(), AllPlayers);
+	for (const auto& PlayerFound : AllPlayers)
+	{
+		if (APlayerBase* const PlayerFoundCasted = Cast<APlayerBase>(PlayerFound))
+		{
+			if (PlayerFoundCasted->IsDead())
+			{
+				AllPlayers.Remove(PlayerFoundCasted);
+			}
+		}
+	}
+
+	return AllPlayers;
+}
+
 FGenericTeamId APlayerControllerBase::GetGenericTeamId() const
 {
 	return TeamId;
 }
 
-void APlayerControllerBase::PlayerDied()
+void APlayerControllerBase::ControlledPlayerDied()
 {
 	SetInputMode(FInputModeUIOnly());
 	bShowMouseCursor = true;
@@ -132,6 +152,7 @@ void APlayerControllerBase::PlayerDied()
 	{
 		DeathWidget->SetVisibility(ESlateVisibility::Visible);
 	}
+	// TODO check if everybody dead
 }
 
 void APlayerControllerBase::FocusOnWidget()
@@ -152,6 +173,54 @@ void APlayerControllerBase::FocusOnGame()
 	}
 	SetInputMode(FInputModeGameOnly());
 	bShowMouseCursor = false;
+}
+
+void APlayerControllerBase::SpectateCalled()
+{
+	PlayersToSpectate = GetPlayersToSpectate();
+	SpectatedPlayerIndex = 0;
+	if (PlayersToSpectate.Num() > 0)
+	{
+		if (PlayersToSpectate[SpectatedPlayerIndex])
+		{
+			SetViewTargetWithBlend(PlayersToSpectate[SpectatedPlayerIndex]);
+			SpectatorWidget->SetVisibility(ESlateVisibility::Visible);
+		}
+	}
+}
+
+void APlayerControllerBase::SpectateNextPlayer()
+{
+	PlayersToSpectate = GetPlayersToSpectate();
+	if (PlayersToSpectate.Num() > 0)
+	{
+		++SpectatedPlayerIndex;
+		if (SpectatedPlayerIndex >= PlayersToSpectate.Num())
+		{
+			SpectatedPlayerIndex = 0;
+		}
+		if (PlayersToSpectate[SpectatedPlayerIndex])
+		{
+			SetViewTargetWithBlend(PlayersToSpectate[SpectatedPlayerIndex]);
+		}
+	}
+}
+
+void APlayerControllerBase::SpectatePreviousPlayer()
+{
+	PlayersToSpectate = GetPlayersToSpectate();
+	if (PlayersToSpectate.Num() > 0)
+	{
+		--SpectatedPlayerIndex;
+		if (SpectatedPlayerIndex < 0)
+		{
+			SpectatedPlayerIndex = PlayersToSpectate.Num() - 1;
+		}
+		if (PlayersToSpectate[SpectatedPlayerIndex])
+		{
+			SetViewTargetWithBlend(PlayersToSpectate[SpectatedPlayerIndex]);
+		}
+	}
 }
 
 void APlayerControllerBase::PauseCalled()
@@ -186,6 +255,22 @@ void APlayerControllerBase::UpdateFoundGamesList(const TArray<FOnlineSessionSear
 	if (UMainMenuWidget* const MainMenuWidgetCasted = Cast<UMainMenuWidget>(MainMenuWidget))
 	{
 		MainMenuWidgetCasted->UpdateFoundGamesList(GamesList);
+	}
+}
+
+void APlayerControllerBase::GameOver()
+{
+	if (DeathWidget)
+	{
+		DeathWidget->SetVisibility(ESlateVisibility::Collapsed);
+	}
+	if (SpectatorWidget)
+	{
+		SpectatorWidget->SetVisibility(ESlateVisibility::Collapsed);
+	}
+	if (GameOverWidget)
+	{
+		GameOverWidget->SetVisibility(ESlateVisibility::Visible);
 	}
 }
 
@@ -304,7 +389,7 @@ void APlayerControllerBase::SwitchCCTV(const FInputActionValue& IAValue)
 
 void APlayerControllerBase::SwitchCCTVForward()
 {
-	ViewedCCTVIndex++;
+	++ViewedCCTVIndex;
 	if (ViewedCCTVIndex == CCTVs.Num())
 	{
 		ViewedCCTVIndex = 0;
@@ -317,7 +402,7 @@ void APlayerControllerBase::SwitchCCTVForward()
 
 void APlayerControllerBase::SwitchCCTVBackward()
 {
-	ViewedCCTVIndex--;
+	--ViewedCCTVIndex;
 	if (ViewedCCTVIndex < 0)
 	{
 		ViewedCCTVIndex = CCTVs.Num() - 1;

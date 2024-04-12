@@ -4,6 +4,7 @@
 #include "Components/Button.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Kismet/GameplayStatics.h"
+#include "PlayerControllerBase.h"
 
 void UDeathWidget::NativeConstruct()
 {
@@ -13,9 +14,13 @@ void UDeathWidget::NativeConstruct()
 	QuitDelegate.BindUFunction(this, FName("QuitGame"));
 	QuitButton->OnClicked.AddUnique(QuitDelegate);
 
-	FScriptDelegate PlayAgainDelegate;
-	PlayAgainDelegate.BindUFunction(this, FName("PlayAgain"));
-	PlayAgainButton->OnClicked.AddUnique(PlayAgainDelegate);
+	FScriptDelegate SpectateDelegate;
+	SpectateDelegate.BindUFunction(this, FName("Spectate"));
+	SpectateButton->OnClicked.AddUnique(SpectateDelegate);
+
+	FScriptDelegate OnVisibilityChangedDelegate;
+	OnVisibilityChangedDelegate.BindUFunction(this, FName("VisibilityChanged"));
+	OnVisibilityChanged.AddUnique(OnVisibilityChangedDelegate);
 }
 
 void UDeathWidget::QuitGame() const
@@ -23,7 +28,22 @@ void UDeathWidget::QuitGame() const
 	UKismetSystemLibrary::QuitGame(GetWorld(), GetOwningPlayer(), EQuitPreference::Quit, false);
 }
 
-void UDeathWidget::PlayAgain() const
+void UDeathWidget::Spectate()
 {
-	UGameplayStatics::OpenLevel(GetWorld(), FName("Main"), false);
+	APlayerControllerBase* PlayerController = Cast<APlayerControllerBase>(GetOwningPlayer());
+
+	if (PlayerController)
+	{
+		PlayerController->SpectateCalled();
+	}
+	SetVisibility(ESlateVisibility::Collapsed);
+}
+
+void UDeathWidget::VisibilityChanged()
+{
+	if (GetVisibility() == ESlateVisibility::Visible)
+	{
+		SpectateButton->SetIsEnabled(false);
+		GetOwningPlayer()->GetWorldTimerManager().SetTimer(EnableSpectateButtonTimer, [this]() { SpectateButton->SetIsEnabled(true); }, 3.f, false);
+	}
 }

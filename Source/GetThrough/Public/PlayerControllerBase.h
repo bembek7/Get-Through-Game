@@ -25,9 +25,17 @@ public:
 
 	virtual FGenericTeamId GetGenericTeamId() const override;
 
-	void PlayerDied();
+	void ControlledPlayerDied();
 
 	void FocusOnGame();
+
+	void SpectateCalled();
+
+	UFUNCTION()
+	void SpectateNextPlayer();
+
+	UFUNCTION()
+	void SpectatePreviousPlayer();
 
 	UFUNCTION()
 	void EnterTheWinningArea();
@@ -36,6 +44,8 @@ public:
 	void ExitTheWinningArea();
 
 	void UpdateFoundGamesList(const TArray<FOnlineSessionSearchResult>& GamesList);
+
+	void GameOver();
 
 protected:
 	virtual void BeginPlay() override;
@@ -75,6 +85,7 @@ private:
 
 	void InitializeCommonWidget(UUserWidget*& WidgetToInitialize, const TSubclassOf<UUserWidget>& WidgetClass, const ESlateVisibility InitialVisibility); // Shorthand for initializing the widgets held by a pointer to UUserWidget
 
+	TArray<AActor*> GetPlayersToSpectate() const;
 public:
 
 protected:
@@ -116,6 +127,12 @@ protected:
 	TSubclassOf<UUserWidget>PlayerWonWidgetClass;
 
 	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<UUserWidget>SpectatorWidgetClass;
+
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<UUserWidget>GameOverWidgetClass;
+
+	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<UWinningAreaWidget>WinningAreaWidgetClass;
 
 	UPROPERTY(EditDefaultsOnly)
@@ -134,13 +151,18 @@ private:
 	const float TimeToWin = 3.f;
 	bool bInCCTVView = false;
 	int32 ViewedCCTVIndex = 0;
+	int32 SpectatedPlayerIndex = 0;
 	TArray<AActor*> CCTVs;
+	TArray<AActor*>PlayersToSpectate;
+
 	FGenericTeamId TeamId = FGenericTeamId(0);
 	UUserWidget* DeathWidget;
 	UUserWidget* PauseWidget;
 	UUserWidget* HUDWidget;
 	UUserWidget* MainMenuWidget;
 	UUserWidget* PlayerWonWidget;
+	UUserWidget* SpectatorWidget;
+	UUserWidget* GameOverWidget;
 	UWinningAreaWidget* WinningAreaWidget;
 	FVector LastRecordedMouseLocation;
 	FRotator LastRecordedRotationWithMouseInViewport;

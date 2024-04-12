@@ -73,9 +73,6 @@ protected:
 	USkeletalMeshComponent* Gun;
 
 	UPROPERTY(EditDefaultsOnly)
-	USceneComponent* ShootingTracesStartPoint;
-
-	UPROPERTY(EditDefaultsOnly)
 	UCameraComponent* Camera;
 
 	UPROPERTY(EditDefaultsOnly)
@@ -86,4 +83,5 @@ protected:
 
 private:
 	bool bIsDead = false;
+	FTimerHandle DestroyAfterDeathTimer;
 };

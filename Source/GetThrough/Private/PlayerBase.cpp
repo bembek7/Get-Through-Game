@@ -11,6 +11,7 @@
 #include "NiagaraComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Perception/AISense_Hearing.h"
+#include "GSBase.h"
 
 APlayerBase::APlayerBase()
 {
@@ -56,6 +57,14 @@ void APlayerBase::BeginPlay()
 			SpringArm->bUsePawnControlRotation = true;
 		}
 	}
+
+	if (!HasAuthority() && !IsLocallyControlled())
+	{
+		if (SpringArmForCollision)
+		{
+			SpringArm->bUsePawnControlRotation = false;
+		}
+	}
 }
 
 void APlayerBase::Tick(float DeltaTime)
@@ -82,10 +91,16 @@ void APlayerBase::Die()
 	bIsDead = true;
 	if (APlayerControllerBase* const PlayerController = Cast<APlayerControllerBase>(GetController()))
 	{
-		PlayerController->PlayerDied();
+		PlayerController->ControlledPlayerDied();
 	}
+	if (AGSBase* const GameState = Cast<AGSBase>(UGameplayStatics::GetGameState(GetWorld())))
+	{
+		GameState->AnyPlayerDied();
+	}
+	GetCharacterMovement()->StopMovementImmediately();
 	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
 	bUseControllerRotationYaw = false;
+	GetWorldTimerManager().SetTimer(DestroyAfterDeathTimer, [this]() { Destroy(); }, 1.f, false);
 }
 
 void APlayerBase::TurnTorchOff()
