@@ -17,15 +17,24 @@ class GETTHROUGH_API UWinningAreaWidget : public UUserWidget
 	GENERATED_BODY()
 
 public:
-	void UpdateCounter(const float TimeLeft) const;
+	void UpdateTimeToWinCounter(const float TimeLeft) const;
+
+	void SetTimeToWinVisibility(const ESlateVisibility NewVisibility);
+
+	void SetPlayersInCounterVisibility(const ESlateVisibility NewVisibility);
 
 protected:
 
 private:
+	UFUNCTION(BlueprintCallable)
+	FText PlayersInAreaToText() const;
 
 public:
 
 protected:
 	UPROPERTY(EditAnywhere, meta = (BindWidget))
-	UTextBlock* Counter;
+	UTextBlock* TimeToWin;
+
+	UPROPERTY(EditAnywhere, meta = (BindWidget))
+	UTextBlock* PlayersInCounterText;
 };

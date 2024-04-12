@@ -4,25 +4,82 @@
 #include "Kismet/GameplayStatics.h"
 #include "PlayerControllerBase.h"
 #include "PlayerBase.h"
+#include "Net/UnrealNetwork.h"
 
 void AGSBase::AnyPlayerDied() const
 {
 	if (AreAllPlayersDead())
 	{
-		TriggerGameOver();
+		NetMulticast_TriggerGameOver();
 	}
 }
 
-void AGSBase::TriggerGameOver() const
+void AGSBase::NetMulticast_TriggerGameOver_Implementation() const
 {
-	TArray<AActor*> AllPlayerControllers;
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APlayerController::StaticClass(), AllPlayerControllers);
-	for (auto& PlayerController : AllPlayerControllers)
+	if (APlayerControllerBase* PlayerControllerCasted = Cast<APlayerControllerBase>(GetWorld()->GetFirstPlayerController()))
 	{
-		if (APlayerControllerBase* PlayerControllerCasted = Cast<APlayerControllerBase>(PlayerController))
+		PlayerControllerCasted->GameOver();
+	}
+}
+
+void AGSBase::PlayerEnteredWinningArea()
+{
+	++NumberOfPlayersInWinningArea;
+	if (NumberOfPlayersInWinningArea == GetNumberOfPlayersAlive())
+	{
+		NetMulticast_NotifyAllPlayersAreInWinningArea();
+	}
+}
+
+void AGSBase::PlayerLeftWinningArea()
+{
+	--NumberOfPlayersInWinningArea;
+	NetMulticast_NotifyPlayerLeftWinningArea();
+}
+
+uint32 AGSBase::GetNumberOfPlayersInWinningArea() const
+{
+	return NumberOfPlayersInWinningArea;
+}
+
+uint32 AGSBase::GetNumberOfPlayersAlive() const
+{
+	uint32 NumberOfPlayersAlive = 0;
+	TArray<AActor*> AllPlayers;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APlayerBase::StaticClass(), AllPlayers);
+	for (auto& Player : AllPlayers)
+	{
+		if (APlayerBase* PlayerCasted = Cast<APlayerBase>(Player))
 		{
-			PlayerControllerCasted->GameOver();
+			if (!PlayerCasted->IsDead())
+			{
+				++NumberOfPlayersAlive;
+			}
 		}
+	}
+	return NumberOfPlayersAlive;
+}
+
+void AGSBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(AGSBase, NumberOfPlayersInWinningArea);
+}
+
+void AGSBase::NetMulticast_NotifyAllPlayersAreInWinningArea_Implementation() const
+{
+	if (APlayerControllerBase* PlayerControllerCasted = Cast<APlayerControllerBase>(GetWorld()->GetFirstPlayerController()))
+	{
+		PlayerControllerCasted->AllPlayersInWinningArea();
+	}
+}
+
+void AGSBase::NetMulticast_NotifyPlayerLeftWinningArea_Implementation() const
+{
+	if (APlayerControllerBase* PlayerControllerCasted = Cast<APlayerControllerBase>(GetWorld()->GetFirstPlayerController()))
+	{
+		PlayerControllerCasted->OtherPlayerLeftWinningArena();
 	}
 }
 

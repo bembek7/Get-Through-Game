@@ -47,6 +47,10 @@ public:
 
 	void GameOver();
 
+	void AllPlayersInWinningArea();
+
+	void OtherPlayerLeftWinningArena();
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -150,6 +154,7 @@ protected:
 private:
 	const float TimeToWin = 3.f;
 	bool bInCCTVView = false;
+	bool bInWinningArea = false;
 	int32 ViewedCCTVIndex = 0;
 	int32 SpectatedPlayerIndex = 0;
 	TArray<AActor*> CCTVs;

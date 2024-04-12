@@ -17,6 +17,7 @@
 #include "Interfaces/OnlineSessionInterface.h"
 #include "OnlineSessionSettings.h"
 #include "MainMenuWidget.h"
+#include "GSBase.h"
 
 void APlayerControllerBase::BeginPlay()
 {
@@ -64,9 +65,9 @@ void APlayerControllerBase::BeginPlay()
 void APlayerControllerBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	if (WinningAreaWidget && WinningAreaWidget->IsVisible())
+	if (WinningAreaWidget && WinningAreaTimerHandle.IsValid())
 	{
-		WinningAreaWidget->UpdateCounter(GetTimeLeftToWin());
+		WinningAreaWidget->UpdateTimeToWinCounter(GetTimeLeftToWin());
 	}
 }
 
@@ -134,6 +135,10 @@ FGenericTeamId APlayerControllerBase::GetGenericTeamId() const
 
 void APlayerControllerBase::ControlledPlayerDied()
 {
+	if (bInWinningArea)
+	{
+		ExitTheWinningArea();
+	}
 	SetInputMode(FInputModeUIOnly());
 	bShowMouseCursor = true;
 	if (HUDWidget)
@@ -152,7 +157,6 @@ void APlayerControllerBase::ControlledPlayerDied()
 	{
 		DeathWidget->SetVisibility(ESlateVisibility::Visible);
 	}
-	// TODO check if everybody dead
 }
 
 void APlayerControllerBase::FocusOnWidget()
@@ -234,7 +238,11 @@ void APlayerControllerBase::PauseCalled()
 
 void APlayerControllerBase::EnterTheWinningArea()
 {
-	GetWorldTimerManager().SetTimer(WinningAreaTimerHandle, this, &APlayerControllerBase::PlayerWon, TimeToWin, false);
+	bInWinningArea = true;
+	if (AGSBase* const GameState = Cast<AGSBase>(UGameplayStatics::GetGameState(GetWorld())))
+	{
+		GameState->PlayerEnteredWinningArea();
+	}
 	if (WinningAreaWidget)
 	{
 		WinningAreaWidget->SetVisibility(ESlateVisibility::Visible);
@@ -243,7 +251,11 @@ void APlayerControllerBase::EnterTheWinningArea()
 
 void APlayerControllerBase::ExitTheWinningArea()
 {
-	GetWorldTimerManager().ClearTimer(WinningAreaTimerHandle);
+	bInWinningArea = false;
+	if (AGSBase* const GameState = Cast<AGSBase>(UGameplayStatics::GetGameState(GetWorld())))
+	{
+		GameState->PlayerLeftWinningArea();
+	}
 	if (WinningAreaWidget)
 	{
 		WinningAreaWidget->SetVisibility(ESlateVisibility::Collapsed);
@@ -272,6 +284,26 @@ void APlayerControllerBase::GameOver()
 	{
 		GameOverWidget->SetVisibility(ESlateVisibility::Visible);
 	}
+}
+
+void APlayerControllerBase::AllPlayersInWinningArea()
+{
+	if (WinningAreaWidget)
+	{
+		WinningAreaWidget->SetPlayersInCounterVisibility(ESlateVisibility::Hidden);
+		WinningAreaWidget->SetTimeToWinVisibility(ESlateVisibility::Visible);
+	}
+	GetWorldTimerManager().SetTimer(WinningAreaTimerHandle, this, &APlayerControllerBase::PlayerWon, TimeToWin, false);
+}
+
+void APlayerControllerBase::OtherPlayerLeftWinningArena()
+{
+	if (WinningAreaWidget)
+	{
+		WinningAreaWidget->SetPlayersInCounterVisibility(ESlateVisibility::Visible);
+		WinningAreaWidget->SetTimeToWinVisibility(ESlateVisibility::Hidden);
+	}
+	GetWorldTimerManager().ClearTimer(WinningAreaTimerHandle);
 }
 
 float APlayerControllerBase::GetTimeLeftToWin() const

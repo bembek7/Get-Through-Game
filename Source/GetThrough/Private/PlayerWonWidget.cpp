@@ -12,18 +12,9 @@ void UPlayerWonWidget::NativeConstruct()
 	FScriptDelegate QuitDelegate;
 	QuitDelegate.BindUFunction(this, FName("QuitGame"));
 	QuitButton->OnClicked.AddUnique(QuitDelegate);
-
-	FScriptDelegate PlayAgainDelegate;
-	PlayAgainDelegate.BindUFunction(this, FName("PlayAgain"));
-	PlayAgainButton->OnClicked.AddUnique(PlayAgainDelegate);
 }
 
 void UPlayerWonWidget::QuitGame() const
 {
 	UKismetSystemLibrary::QuitGame(GetWorld(), GetOwningPlayer(), EQuitPreference::Quit, false);
-}
-
-void UPlayerWonWidget::PlayAgain() const
-{
-	UGameplayStatics::OpenLevel(GetWorld(), FName("Main"), false);
 }
