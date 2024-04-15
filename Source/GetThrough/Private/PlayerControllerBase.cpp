@@ -75,7 +75,6 @@ void APlayerControllerBase::SetupInput(UInputComponent* PlayerInputComponent)
 {
 	if (UEnhancedInputComponent* PlayerEnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent))
 	{
-		// Binding inputs
 		if (IAWalk)
 		{
 			PlayerEnhancedInputComponent->BindAction(IAWalk, ETriggerEvent::Triggered, this, &APlayerControllerBase::Walk);
@@ -135,6 +134,10 @@ FGenericTeamId APlayerControllerBase::GetGenericTeamId() const
 
 void APlayerControllerBase::ControlledPlayerDied()
 {
+	if (bInCCTVView)
+	{
+		CCTVViewOff();
+	}
 	if (bInWinningArea)
 	{
 		ExitTheWinningArea();
@@ -376,30 +379,40 @@ void APlayerControllerBase::ToggleCCTVView()
 {
 	if (!bInCCTVView)
 	{
-		if (CCTVs.IsEmpty())
-		{
-			UGameplayStatics::GetAllActorsOfClass(GetWorld(), CCTVClass, CCTVs);
-		}
-		if (!CCTVs.IsEmpty())
-		{
-			if (CCTVs[ViewedCCTVIndex])
-			{
-				SetViewTargetWithBlend(CCTVs[ViewedCCTVIndex]);
-			}
-			IgnoreMoveInput = true;
-			IgnoreLookInput = true;
-			bInCCTVView = true;
-		}
+		CCTVViewOn();
 	}
 	else
 	{
-		bInCCTVView = false;
-		IgnoreMoveInput = false;
-		IgnoreLookInput = false;
-		if (APawn* const PlayerPawn = GetPawn())
+		CCTVViewOff();
+	}
+}
+
+void APlayerControllerBase::CCTVViewOn()
+{
+	if (CCTVs.IsEmpty())
+	{
+		UGameplayStatics::GetAllActorsOfClass(GetWorld(), CCTVClass, CCTVs);
+	}
+	if (!CCTVs.IsEmpty())
+	{
+		if (CCTVs[ViewedCCTVIndex])
 		{
-			SetViewTargetWithBlend(PlayerPawn);
+			SetViewTargetWithBlend(CCTVs[ViewedCCTVIndex]);
 		}
+		IgnoreMoveInput = true;
+		IgnoreLookInput = true;
+		bInCCTVView = true;
+	}
+}
+
+void APlayerControllerBase::CCTVViewOff()
+{
+	bInCCTVView = false;
+	IgnoreMoveInput = false;
+	IgnoreLookInput = false;
+	if (APawn* const PlayerPawn = GetPawn())
+	{
+		SetViewTargetWithBlend(PlayerPawn);
 	}
 }
 

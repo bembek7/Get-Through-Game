@@ -25,14 +25,15 @@ void UDeathWidget::NativeConstruct()
 
 void UDeathWidget::QuitGame() const
 {
-	UKismetSystemLibrary::QuitGame(GetWorld(), GetOwningPlayer(), EQuitPreference::Quit, false);
+	if(APlayerController* OwiningPlayer = GetOwningPlayer())
+	{
+		UKismetSystemLibrary::QuitGame(GetWorld(), OwiningPlayer, EQuitPreference::Quit, false);
+	}
 }
 
 void UDeathWidget::Spectate()
 {
-	APlayerControllerBase* PlayerController = Cast<APlayerControllerBase>(GetOwningPlayer());
-
-	if (PlayerController)
+	if (APlayerControllerBase* PlayerController = Cast<APlayerControllerBase>(GetOwningPlayer()))
 	{
 		PlayerController->SpectateCalled();
 	}
@@ -44,6 +45,10 @@ void UDeathWidget::VisibilityChanged()
 	if (GetVisibility() == ESlateVisibility::Visible)
 	{
 		SpectateButton->SetIsEnabled(false);
-		GetOwningPlayer()->GetWorldTimerManager().SetTimer(EnableSpectateButtonTimer, [this]() { SpectateButton->SetIsEnabled(true); }, 3.f, false);
+		if (APlayerController* OwiningPlayer = GetOwningPlayer())
+		{
+			GetOwningPlayer()->GetWorldTimerManager().SetTimer(EnableSpectateButtonHandle, [this]() { SpectateButton->SetIsEnabled(true); }, SpectationAllowanceDelay, false);
+
+		}
 	}
 }

@@ -30,7 +30,10 @@ void UPauseWidget::NativeConstruct()
 
 void UPauseWidget::QuitGame() const
 {
-	UKismetSystemLibrary::QuitGame(GetWorld(), GetOwningPlayer(), EQuitPreference::Quit, false);
+	if (APlayerController* OwiningPlayer = GetOwningPlayer())
+	{
+		UKismetSystemLibrary::QuitGame(GetWorld(), OwiningPlayer, EQuitPreference::Quit, false);
+	}
 }
 
 void UPauseWidget::OpenSettings()

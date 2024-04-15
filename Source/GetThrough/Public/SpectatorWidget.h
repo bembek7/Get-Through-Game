@@ -6,7 +6,6 @@
 #include "Blueprint/UserWidget.h"
 #include "SpectatorWidget.generated.h"
 
-class UButton;
 /**
  * 
  */
@@ -26,12 +25,12 @@ private:
 
 protected:
 	UPROPERTY(EditAnywhere, meta = (BindWidget))
-	UButton* QuitButton;
+	class UButton* QuitButton;
 
 	UPROPERTY(EditAnywhere, meta = (BindWidget))
-	UButton* ForwardButton;
+	class UButton* ForwardButton;
 
 	UPROPERTY(EditAnywhere, meta = (BindWidget))
-	UButton* BackwardButton;
+	class UButton* BackwardButton;
 
 };

@@ -19,7 +19,7 @@ UNWGameInstance::UNWGameInstance(const FObjectInitializer& ObjectInitializer)
 void UNWGameInstance::StartOnlineGame()
 {
 	ULocalPlayer* const Player = GetFirstGamePlayer();
-	HostSession(Player->GetPreferredUniqueNetId().GetUniqueNetId(), FName("Test Name"), true, true, 4);
+	HostSession(Player->GetPreferredUniqueNetId().GetUniqueNetId(), FName("Session Name"), true, true, 4);
 }
 
 void UNWGameInstance::FindOnlineGames()
@@ -36,7 +36,7 @@ void UNWGameInstance::JoinOnlineGame(const FString& ChosenSessionOwningUserName)
 	{
 		if (SearchResult.Session.OwningUserId != Player->GetPreferredUniqueNetId() && SearchResult.Session.OwningUserName == ChosenSessionOwningUserName)
 		{
-			JoinFoundSession(Player->GetPreferredUniqueNetId().GetUniqueNetId(), FName("Test Name"), SearchResult);
+			JoinFoundSession(Player->GetPreferredUniqueNetId().GetUniqueNetId(), FName("Session Name"), SearchResult);
 			break;
 		}
 	}
@@ -51,7 +51,7 @@ void UNWGameInstance::DestroySessionAndLeaveGame()
 		if (Sessions.IsValid())
 		{
 			Sessions->AddOnDestroySessionCompleteDelegate_Handle(OnDestroySessionCompleteDelegate);
-			Sessions->DestroySession(FName("Test Name"));
+			Sessions->DestroySession(FName("Session Name"));
 		}
 	}
 }

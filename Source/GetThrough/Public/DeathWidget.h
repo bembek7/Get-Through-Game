@@ -6,8 +6,6 @@
 #include "Blueprint/UserWidget.h"
 #include "DeathWidget.generated.h"
 
-class UButton;
-
 /**
  *
  */
@@ -35,10 +33,13 @@ public:
 
 protected:
 	UPROPERTY(EditAnywhere, meta = (BindWidget))
-	UButton* SpectateButton;
+	class UButton* SpectateButton;
 
 	UPROPERTY(EditAnywhere, meta = (BindWidget))
-	UButton* QuitButton;
+	class UButton* QuitButton;
 
-	FTimerHandle EnableSpectateButtonTimer;
+	FTimerHandle EnableSpectateButtonHandle;
+
+private:
+	float SpectationAllowanceDelay = 3.f;
 };

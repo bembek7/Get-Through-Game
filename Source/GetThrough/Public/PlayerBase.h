@@ -58,7 +58,7 @@ protected:
 	USoundBase* GunshotSound;
 
 	UPROPERTY(EditDefaultsOnly)
-	float GunshotSoundRange = 2000.f;
+	float GunshotSoundRange = 2250.f;
 
 	UPROPERTY(EditDefaultsOnly)
 	class UNiagaraSystem* BulletTraceSystem;

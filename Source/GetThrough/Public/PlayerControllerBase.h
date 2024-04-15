@@ -70,6 +70,10 @@ private:
 	UFUNCTION(Category = "Input Response")
 	void ToggleCCTVView();
 
+	void CCTVViewOn();
+
+	void CCTVViewOff();
+
 	UFUNCTION(Category = "Input Response")
 	void SwitchCCTV(const FInputActionValue& IAValue);
 

@@ -6,8 +6,6 @@
 #include "Blueprint/UserWidget.h"
 #include "PauseWidget.generated.h"
 
-class UButton;
-class UVerticalBox;
 /**
  *
  */
@@ -35,17 +33,17 @@ public:
 
 protected:
 	UPROPERTY(EditAnywhere, meta = (BindWidget))
-	UButton* ContinueButton;
+	class UButton* ContinueButton;
 
 	UPROPERTY(EditAnywhere, meta = (BindWidget))
-	UButton* SettingsButton;
+	class UButton* SettingsButton;
 
 	UPROPERTY(EditAnywhere, meta = (BindWidget))
-	UButton* QuitButton;
+	class UButton* QuitButton;
 
 	UPROPERTY(EditAnywhere, meta = (BindWidget))
 	UUserWidget* SettingsWidget;
 
 	UPROPERTY(EditAnywhere, meta = (BindWidget))
-	UVerticalBox* MainButtons;
+	class UVerticalBox* MainButtons;
 };

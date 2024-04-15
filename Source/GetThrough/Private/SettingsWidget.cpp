@@ -59,19 +59,19 @@ void USettingsWidget::NativeConstruct()
 
 void USettingsWidget::ChangeResolution() const
 {
-	FString ResolutionPicked = Resolution->GetSelectedOption();
+	const FString ResolutionPicked = Resolution->GetSelectedOption();
 	GameSettings->SetScreenResolution(*ResolutionMap.Find(ResolutionPicked));
 }
 
 void USettingsWidget::ChangeWindowMode() const
 {
-	FString WindowModePicked = WindowMode->GetSelectedOption();
+	const FString WindowModePicked = WindowMode->GetSelectedOption();
 	GameSettings->SetFullscreenMode(*WindowModeMap.Find(WindowModePicked));
 }
 
 void USettingsWidget::ChangeFrameRate() const
 {
-	FString FrameRatePicked = FrameRate->GetSelectedOption();
+	const FString FrameRatePicked = FrameRate->GetSelectedOption();
 	GameSettings->SetFrameRateLimit(*FrameRateMap.Find(FrameRatePicked));
 }
 

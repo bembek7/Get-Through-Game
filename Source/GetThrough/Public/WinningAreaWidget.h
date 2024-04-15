@@ -9,8 +9,6 @@
 /**
  *
  */
-class UTextBlock;
-
 UCLASS()
 class GETTHROUGH_API UWinningAreaWidget : public UUserWidget
 {
@@ -33,8 +31,8 @@ public:
 
 protected:
 	UPROPERTY(EditAnywhere, meta = (BindWidget))
-	UTextBlock* TimeToWin;
+	class UTextBlock* TimeToWin;
 
 	UPROPERTY(EditAnywhere, meta = (BindWidget))
-	UTextBlock* PlayersInCounterText;
+	class UTextBlock* PlayersInCounterText;
 };

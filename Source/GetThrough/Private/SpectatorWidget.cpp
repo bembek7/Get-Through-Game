@@ -13,9 +13,7 @@ void USpectatorWidget::NativeConstruct()
 	QuitDelegate.BindUFunction(this, FName("QuitGame"));
 	QuitButton->OnClicked.AddUnique(QuitDelegate);
 
-	APlayerController* PlayerController = GetOwningPlayer();
-	
-	if(PlayerController)
+	if(APlayerController* PlayerController = GetOwningPlayer())
 	{
 		FScriptDelegate SpectatePreviousPlayerDelegate;
 		SpectatePreviousPlayerDelegate.BindUFunction(PlayerController, FName("SpectatePreviousPlayer"));
@@ -29,6 +27,9 @@ void USpectatorWidget::NativeConstruct()
 
 void USpectatorWidget::QuitGame() const
 {
-	UKismetSystemLibrary::QuitGame(GetWorld(), GetOwningPlayer(), EQuitPreference::Quit, false);
+	if (APlayerController* OwiningPlayer = GetOwningPlayer())
+	{
+		UKismetSystemLibrary::QuitGame(GetWorld(), OwiningPlayer, EQuitPreference::Quit, false);
+	}
 }
 

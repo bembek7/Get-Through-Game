@@ -4,10 +4,6 @@
 #include "Blueprint/UserWidget.h"
 #include "SettingsWidget.generated.h"
 
-class UComboBoxString;
-class USlider;
-class UGameUserSettings;
-class UButton;
 /**
  *
  */
@@ -47,28 +43,28 @@ public:
 
 protected:
 	UPROPERTY(EditAnywhere, meta = (BindWidget))
-	UComboBoxString* Resolution;
+	class UComboBoxString* Resolution;
 
 	UPROPERTY(EditAnywhere, meta = (BindWidget))
-	UComboBoxString* WindowMode;
+	class UComboBoxString* WindowMode;
 
 	UPROPERTY(EditAnywhere, meta = (BindWidget))
-	UComboBoxString* FrameRate;
+	class UComboBoxString* FrameRate;
 
 	UPROPERTY(EditAnywhere, meta = (BindWidget))
-	USlider* Volume;
+	class USlider* Volume;
 
 	UPROPERTY(EditAnywhere, meta = (BindWidget))
-	UButton* BackButton;
+	class UButton* BackButton;
 
 	UPROPERTY(EditAnywhere, meta = (BindWidget))
-	UButton* SaveButton;
+	class UButton* SaveButton;
 
 	UPROPERTY(EditDefaultsOnly)
-	USoundMix* MasterSoundMix;
+	class USoundMix* MasterSoundMix;
 
 	UPROPERTY(EditDefaultsOnly)
-	USoundClass* MasterSoundClass;
+	class USoundClass* MasterSoundClass;
 
 private:
 

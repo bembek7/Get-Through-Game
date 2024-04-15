@@ -17,7 +17,7 @@ APlayerBase::APlayerBase()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
-	AIPerceptionStimuliSource = CreateDefaultSubobject<UAIPerceptionStimuliSourceComponent>(TEXT("AIPerceptionStimuliSource"));
+	AIPerceptionStimuliSource = CreateDefaultSubobject<UAIPerceptionStimuliSourceComponent>(TEXT("AI Perception Stimuli Source"));
 
 	SpringArmForCollision = CreateDefaultSubobject<USpringArmComponent>(TEXT("Spring Arm For Collision"));
 	SpringArmForCollision->SetupAttachment(GetCapsuleComponent());
@@ -83,7 +83,7 @@ void APlayerBase::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 
 FVector APlayerBase::GetShotBeamStartLocation() const
 {
-	return Gun->GetSocketLocation(FName("Muzzle"));
+	return (Gun) ? Gun->GetSocketLocation(FName("Muzzle")) : FVector();
 }
 
 void APlayerBase::Die()
@@ -125,20 +125,12 @@ float APlayerBase::GetAimPitch() const
 
 FVector APlayerBase::GetShootingTraceStartPointLocation() const
 {
-	if (Camera)
-	{
-		return Camera->GetComponentLocation();
-	}
-	return FVector();
+	return (Camera) ? Camera->GetComponentLocation() : FVector();
 }
 
 FVector APlayerBase::GetShootingDirection() const
 {
-	if (Camera)
-	{
-		return Camera->GetForwardVector();
-	}
-	return FVector();
+	return (Camera) ? Camera->GetForwardVector() : FVector();
 }
 
 void APlayerBase::NetMulticast_PlayGunshotSound_Implementation()
