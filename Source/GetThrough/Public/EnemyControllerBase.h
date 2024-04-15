@@ -25,9 +25,12 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
+	UFUNCTION(BlueprintCallable)
+	void ClearSpottedPlayerValue();
+
 private:
 	UFUNCTION()
-	void TargetPerceptionUpdated(AActor* const Actor, const FAIStimulus& Stimulus) const;
+	void TargetPerceptionUpdated(AActor* const Actor, const FAIStimulus& Stimulus);
 
 public:
 
@@ -45,4 +48,7 @@ protected:
 private:
 	FGenericTeamId TeamId = FGenericTeamId(1);
 	UBlackboardComponent* EnemyBlackboard;
+	AActor* LastSpottedActor;
+	FTimerHandle PerceptionForgetHandle;
+	float PerceptionForgetTime = 1.f;
 };

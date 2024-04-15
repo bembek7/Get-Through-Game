@@ -49,11 +49,47 @@ void AEnemyControllerBase::BeginPlay()
 	AIPerception->OnTargetPerceptionUpdated.AddUnique(TargetPereceptionUpdatedDelegate);
 }
 
-void AEnemyControllerBase::TargetPerceptionUpdated(AActor* const Actor, const FAIStimulus& Stimulus) const
+void AEnemyControllerBase::ClearSpottedPlayerValue()
+{
+	LastSpottedActor = nullptr;
+	if(EnemyBlackboard)
+	{
+		EnemyBlackboard->ClearValue(FName("Player"));
+	}
+}
+
+void AEnemyControllerBase::TargetPerceptionUpdated(AActor* const Actor, const FAIStimulus& Stimulus)
 {
 	if (Stimulus.WasSuccessfullySensed())
 	{
-		EnemyBlackboard->SetValueAsObject(FName("Player"), Actor);
-		// TODO Check if it's closer than current value
+		if (LastSpottedActor)
+		{
+			if (APawn const* ControlledPawn = GetPawn())
+			{
+				double DistanceToSpottedActor = FVector::Distance(ControlledPawn->GetActorLocation(), Actor->GetActorLocation());
+				double DistanceToLastSpottedActor = FVector::Distance(ControlledPawn->GetActorLocation(), LastSpottedActor->GetActorLocation());
+
+				if (DistanceToSpottedActor < DistanceToLastSpottedActor)
+				{
+					LastSpottedActor = Actor;
+					if (EnemyBlackboard)
+					{
+						EnemyBlackboard->SetValueAsObject(FName("Player"), Actor);
+					}
+				}
+			}
+		}
+		else
+		{
+			LastSpottedActor = Actor;
+			if (EnemyBlackboard)
+			{
+				EnemyBlackboard->SetValueAsObject(FName("Player"), Actor);
+			}
+		}
+		if (!PerceptionForgetHandle.IsValid())
+		{
+			GetWorldTimerManager().SetTimer(PerceptionForgetHandle, [this]() { AIPerception->ForgetAll(); }, PerceptionForgetTime, true);
+		}
 	}
 }
