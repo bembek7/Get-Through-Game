@@ -389,6 +389,10 @@ void APlayerControllerBase::ToggleCCTVView()
 
 void APlayerControllerBase::CCTVViewOn()
 {
+	if (HUDWidget)
+	{
+		HUDWidget->SetVisibility(ESlateVisibility::Collapsed);
+	}
 	if (CCTVs.IsEmpty())
 	{
 		UGameplayStatics::GetAllActorsOfClass(GetWorld(), CCTVClass, CCTVs);
@@ -407,6 +411,10 @@ void APlayerControllerBase::CCTVViewOn()
 
 void APlayerControllerBase::CCTVViewOff()
 {
+	if (HUDWidget)
+	{
+		HUDWidget->SetVisibility(ESlateVisibility::Visible);
+	}
 	bInCCTVView = false;
 	IgnoreMoveInput = false;
 	IgnoreLookInput = false;
